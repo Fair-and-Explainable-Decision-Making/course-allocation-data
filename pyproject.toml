@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[pytest]
+testpaths = "tests"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 88
+profile = "black"
+
+[project]
+name = "qsurvey"
+version = "0.0.1"
+authors = [
+  { name="Paula Navarrete Diaz", email="pnavarretedi@umass.edu" },
+  { name="George Bissias", email="gbiss@cs.umass.edu" },
+]
+description = "Tools for processing qualtrics student survey data"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "fair@git+https://github.com/gbiss/2023-project-fair",
+]

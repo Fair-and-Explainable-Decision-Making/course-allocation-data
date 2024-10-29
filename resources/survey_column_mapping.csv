@@ -1,0 +1,125 @@
+question|description
+1|Please indicate your current status: 1:Freshmen, 2:Sophomore, 3:Junior, 4: Senior, 5:MS, 6:PhD
+2|How many classes are you planning to enroll in before the add/drop period?
+3|How many classes are you planning to stay enrolled in after the add/drop period?
+4|Which categories of courses are you interested in taking? Select all that apply
+5#1_1|Before 9:00 AM
+5#1_2|9:00AM-10:00AM
+5#1_3|10:00AM-11:00AM
+5#1_4|11:00AM-12:00PM
+5#1_5|12:00PM-1:00PM
+5#1_6|1:00PM-2:00PM
+5#1_7|2:00PM-3:00PM
+5#1_8|3:00PM-4:00PM
+5#1_9|4:00PM-5:00PM
+5#1_10|5:00PM-6:00PM
+5#1_11|After 6:00PM
+7 _1.1|<strong>Course:&nbsp;</strong>DEPT 101-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7 _1|<strong>Course:&nbsp;</strong>DEPT 102-01 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _2|<strong>Course:&nbsp;</strong>DEPT 102-02 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _3|<strong>Course:&nbsp;</strong>DEPT 102-03 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 09:05 AM - 10:20 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _4|<strong>Course:&nbsp;</strong>DEPT 102-04 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _5|<strong>Course:&nbsp;</strong>DEPT 102-05 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _6|<strong>Course:&nbsp;</strong>DEPT 102-06 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _7|<strong>Course:&nbsp;</strong>DEPT 102-07 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7_1|<strong>Course:&nbsp;</strong>DEPT 103-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWedFri 01:25 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _2.1|<strong>Course:&nbsp;</strong>DEPT 104-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _8|<strong>Course:&nbsp;</strong>DEPT 105-01 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 08:30 AM - 09:45 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _9|<strong>Course:&nbsp;</strong>DEPT 105-02 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 05:30 PM - 06:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7_2|<strong>Course:&nbsp;</strong>DEPT 106 &nbsp; <strong>Schedule:&nbsp;</strong>BY ARRANGEMENT &nbsp; <strong>Instructor:&nbsp;</strong> STAFF
+7 _3.1|<strong>Course:&nbsp;</strong>DEPT 201-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _10|<strong>Course:&nbsp;</strong>DEPT 202 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _11|<strong>Course:&nbsp;</strong>DEPT 203-01 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 05:30 PM - 06:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _12|<strong>Course:&nbsp;</strong>DEPT 203-02 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7_3|<strong>Course:&nbsp;</strong>DEPT 204-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_4|<strong>Course:&nbsp;</strong>DEPT 205-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7_5|<strong>Course:&nbsp;</strong>DEPT 205-02 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7 _13|<strong>Course:&nbsp;</strong>DEPT 206-01 &nbsp;<strong>Schedule:&nbsp;</strong>Tue 10:00 AM - 11:15 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7_6|<strong>Course:&nbsp;</strong>DEPT 207-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_7|<strong>Course:&nbsp;</strong>DEPT 207-02 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _4.1|<strong>Course:&nbsp;</strong>DEPT 208-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_8|<strong>Course:&nbsp;</strong>DEPT 209-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWedFri 01:25 PM - 02:15 PM &nbsp; <strong>Instructors:&nbsp;</strong>STAFF
+7_9|<strong>Course:&nbsp;</strong>DEPT 209-02 &nbsp; <strong>Schedule: </strong>MonWedFri 10:10 AM - 11:00 AM &nbsp; <strong>Instructors:&nbsp;</strong>STAFF
+7 _14|<strong>Course:&nbsp;</strong>DEPT 210-01 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _15|<strong>Course:&nbsp;</strong>DEPT 211-01 &nbsp;<strong>Schedule:&nbsp;</strong>Wed 10:00 AM - 10:50 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _16|<strong>Course:&nbsp;</strong>DEPT 212-01 &nbsp;<strong>Schedule:&nbsp;</strong>Fri 11:30 AM - 12:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _17|<strong>Course:&nbsp;</strong>DEPT 212-02 &nbsp;<strong>Schedule:&nbsp;</strong>Wed 11:30 AM - 12:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _18|<strong>Course:&nbsp;</strong>DEPT 212-03 &nbsp;<strong>Schedule:&nbsp;</strong>Fri 02:30 PM - 03:45 PM &nbsp;<strong>Instructor:&nbsp;</strong> STAFF
+7 _19|<strong>Course:&nbsp;</strong>DEPT 301-01,02 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _20|<strong>Course:&nbsp;</strong>DEPT 301-03,04 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _21|<strong>Course:&nbsp;</strong>DEPT 301-05,06 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _22|<strong>Course:&nbsp;</strong>DEPT 301-07,08 &nbsp;<strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _23|<strong>Course:&nbsp;</strong>DEPT 301-09,10 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _24|<strong>Course:&nbsp;</strong>DEPT 301-11,12 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _25|<strong>Course:&nbsp;</strong>DEPT 301-13,14 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 02:30 PM - 03:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _26|<strong>Course:&nbsp;</strong>DEPT 301-15,16 &nbsp;<strong>Schedule:&nbsp;</strong>MonWedFri 10:10 AM - 11:00 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _27|<strong>Course:&nbsp;</strong>DEPT 301-17,18 &nbsp;<strong>Schedule:&nbsp;</strong>MonWedFri 11:15 AM - 12:05 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _28|<strong>Course:&nbsp;</strong>DEPT 301-19,20 &nbsp;<strong>Schedule:&nbsp;</strong>MonWedFri 12:20 PM - 01:10 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _29|<strong>Course:&nbsp;</strong>DEPT 301-21,22 &nbsp;<strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7 _30|<strong>Course:&nbsp;</strong>DEPT 301-23,24 &nbsp;<strong>Schedule:&nbsp;</strong>MonWedFri 09:05 AM - 09:55 AM &nbsp;<strong>Instructor:&nbsp;</strong>STAFF
+7_10|<strong>Course:&nbsp;</strong>DEPT 302-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_11|<strong>Course:&nbsp;</strong>DEPT 302-02 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_12|<strong>Course:&nbsp;</strong>DEPT 303-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_13|<strong>Course:&nbsp;</strong>DEPT 303-02 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_14|<strong>Course:&nbsp;</strong>DEPT 303-03 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_15|<strong>Course:&nbsp;</strong>DEPT 303-04 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _5.1|<strong>Course:&nbsp;</strong>DEPT 304-01 &nbsp; <strong>Schedule: </strong>TueThu 02:30 PM - 03:45 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7_16|<strong>Course:&nbsp;</strong>DEPT 305-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_17|<strong>Course:&nbsp;</strong>DEPT 306-01 &nbsp; <strong>Schedule:&nbsp;</strong>Tue 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_18|<strong>Course:&nbsp;</strong>DEPT 306-02 &nbsp; <strong>Schedule:&nbsp;</strong>Thu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_19|<strong>Course:&nbsp;</strong>DEPT 307 &nbsp; <strong>Schedule:&nbsp;</strong>MonWedFri 01:25 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_20|<strong>Course:&nbsp;</strong>DEPT 308 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_21|<strong>Course:&nbsp;</strong>DEPT 309-01 &nbsp; <strong>Schedule:&nbsp;</strong>Mon 10:10 AM - 12:05 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_22|<strong>Course:&nbsp;</strong>DEPT 309-02 &nbsp; <strong>Schedule:&nbsp;</strong>Wed 10:10 AM - 12:05 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _6.1|<strong>Course:&nbsp;</strong>DEPT 310-01 &nbsp; <strong>Schedule: </strong>MonWed 02:30 PM - 03:45 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7_23|<strong>Course:&nbsp;</strong>DEPT 311-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_24|<strong>Course:&nbsp;</strong>DEPT 312 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:30 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_25|<strong>Course:&nbsp;</strong>DEPT 313-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM <strong> &nbsp;Instructor:&nbsp;</strong> STAFF
+7_26|<strong>Course:&nbsp;</strong>DEPT 314-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7 _7.1|<strong>Course:&nbsp;</strong>DEPT 315 &nbsp; <strong>Schedule: </strong>TueThu 11:30 AM - 12:45 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7_27|<strong>Course:&nbsp;</strong>DEPT 401-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_28|<strong>Course:&nbsp;</strong>DEPT 402-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_29|<strong>Course:&nbsp;</strong>DEPT 403-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_30|<strong>Course:&nbsp;</strong>DEPT 403-02 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_31|<strong>Course:&nbsp;</strong>DEPT 403-03 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_32|<strong>Course:&nbsp;</strong>DEPT 403-04 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_33|<strong>Course:&nbsp;</strong>DEPT 404-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_34|<strong>Course:&nbsp;</strong>DEPT 405-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_35|<strong>Course:&nbsp;</strong>DEPT 406-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_36|<strong>Course:&nbsp;</strong>DEPT 407-01 &nbsp; <strong>Schedule:&nbsp;</strong>BY ARRANGEMENT &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_37|<strong>Course:&nbsp;</strong>DEPT 408-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_38|<strong>Course:&nbsp;</strong>DEPT 409-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 10:10 AM - 11:25 AM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_39|<strong>Course:&nbsp;</strong>DEPT 501-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_40|<strong>Course:&nbsp;</strong>DEPT 501-03,04 &nbsp; <strong>Schedule:&nbsp;</strong>BY ARRANGEMENT (Online) &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_41|<strong>Course:&nbsp;</strong>DEPT 502 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_42|<strong>Course:&nbsp;</strong>DEPT 503-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_43|<strong>Course:&nbsp;</strong>DEPT 504-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_44|<strong>Course:&nbsp;</strong>DEPT 505-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_45|<strong>Course:&nbsp;</strong>DEPT 506-01 &nbsp; <strong>Schedule:&nbsp;</strong>Tue 05:30 PM - 06:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_46|<strong>Course:&nbsp;</strong>DEPT 507-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_47|<strong>Course:&nbsp;</strong>DEPT 508-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_48|<strong>Course:&nbsp;</strong>DEPT 509-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>BY ARRANGEMENT (Online) &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_49|<strong>Course:&nbsp;</strong>DEPT 510-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_50|<strong>Course:&nbsp;</strong>DEPT 601-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_51|<strong>Course:&nbsp;</strong>DEPT 602-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_52|<strong>Course:&nbsp;</strong>DEPT 603-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_53|<strong>Course:&nbsp;</strong>DEPT 604-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_54|<strong>Course:&nbsp;</strong>DEPT 605-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 12:20 PM - 01:35 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_55|<strong>Course:&nbsp;</strong>DEPT 606-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp; <strong>Instructors:&nbsp;</strong>STAFF
+7_56|<strong>Course:&nbsp;</strong>DEPT 607-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 10:10 AM - 11:25 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_57|<strong>Course:&nbsp;</strong>DEPT 608-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 11:30 AM - 12:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_58|<strong>Course:&nbsp;</strong>DEPT 609-01 &nbsp; <strong>Schedule:&nbsp;</strong>Tue 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_59|<strong>Course:&nbsp;</strong>DEPT 610-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 02:30 PM - 03:45 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7_60|<strong>Course:&nbsp;</strong>DEPT 611-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_61|<strong>Course:&nbsp;</strong>DEPT 612-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_62|<strong>Course:&nbsp;</strong>DEPT 613-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 01:00 PM - 02:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_63|<strong>Course:&nbsp;</strong>DEPT 614-01,02 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_64|<strong>Course:&nbsp;</strong>DEPT 615-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 04:00 PM - 05:15 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_65|<strong>Course:&nbsp;</strong>DEPT 616-01 &nbsp; <strong>Schedule:&nbsp;</strong>TueThu 10:00 AM - 11:15 AM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_66|<strong>Course:&nbsp;</strong>DEPT 617-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 02:30 PM - 03:45 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_67|<strong>Course:&nbsp;</strong>DEPT 618-01 &nbsp; <strong>Schedule:&nbsp;</strong>Thu 02:30 PM - 03:30 PM <strong> &nbsp;Instructor:&nbsp;</strong>STAFF
+7_68|<strong>Course:&nbsp;</strong>DEPT 619-01 &nbsp; <strong>Schedule:&nbsp;</strong>Mon 02:30 PM - 03:30 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_69|<strong>Course:&nbsp;</strong>DEPT 620-01 &nbsp; <strong>Schedule:&nbsp;</strong>MonWed 10:10 AM - 11:25 AM <strong> &nbsp;Instructors:&nbsp;</strong>STAFF
+7_70|<strong>Course:&nbsp;</strong>DEPT 621-01 &nbsp; <strong>Schedule:&nbsp;</strong>Wed 05:30 PM - 06:20 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+7_71|<strong>Course:&nbsp;</strong>DEPT 622-01 &nbsp; <strong>Schedule:&nbsp;</strong>Thu 04:00 PM - 05:00 PM &nbsp; <strong>Instructor:&nbsp;</strong>STAFF
+8|
