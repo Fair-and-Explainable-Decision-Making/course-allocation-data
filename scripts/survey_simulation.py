@@ -10,6 +10,7 @@ NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
+RNG = np.random.default_rng(None)
 
 status_color_map = {
     1: "lightsteelblue",
@@ -36,7 +37,7 @@ status_crs_prefix_map = {
     6: ["5", "6"],
 }
 
-survey_file = "resources/survey_data.csv"
+survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -83,7 +84,7 @@ for status in range(1, 7):
         )
         for student in status_students
     ]
-    status_corpus = Corpus(status_surveys)
+    status_corpus = Corpus(status_surveys, RNG)
     status_mbeta = status_corpus.kde_distribution(SAMPLE_PER_STUDENT, NUM_SUB_KERNELS)
     status_mbeta_map[status] = status_mbeta
     status_surveys_map[status] = status_surveys
@@ -166,6 +167,7 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
         qsurvey.get_status_relevant(
             status, all_courses, course_map, status_crs_prefix_map
         ),
+        rng=RNG,
     )
     status_synth_students_map[status] = synth_students
     status_data_map[status] = data

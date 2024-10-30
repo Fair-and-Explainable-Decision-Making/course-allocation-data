@@ -59,6 +59,7 @@ def synthesize_students(
     course_map,
     max_courses,
     relevant_idxs,
+    rng,
 ):
     num_students = len(surveys)
     total_course_list = [int(survey.data().sum()) for survey in surveys]
@@ -87,6 +88,7 @@ def synthesize_students(
             qs.course_sect_constr(features, schedule),
         ],
         schedule,
+        rng=rng,
         max_total_courses=max_courses,
     )
 
@@ -103,6 +105,7 @@ class SurveyStudent(BaseAgent):
         course: Course,
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
+        rng: np.random.Generator,
         threshold: int = 1,
         max_total_courses: int = sys.maxsize,
         sparse: bool = False,
@@ -121,6 +124,7 @@ class SurveyStudent(BaseAgent):
             course (Course): Course feature
             global_constraints (list[LinearConstraint]): Previously constructed global constraints
             schedule (list[ScheduleItem]): A list of items corresponding to responses
+            rng (np.random.Generator): Random number generator
             threshold (int, optional): What response value constitutes a preference for the item. Defaults to 1.
             max_total_courses (int, optional): Total courses that can be assigned to the student. Defaults to sys.maxsize.
             sparse (bool, optional): Should sparse matrices be used for constraints. Defaults to False.
@@ -141,7 +145,9 @@ class SurveyStudent(BaseAgent):
                 for j in range(len(schedule))
                 if responses[i][j] > threshold
             ]
-            total_courses = int(min(max_total_courses, truncnorm.rvs(*params)))
+            total_courses = int(
+                min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
+            )
             students.append(
                 SurveyStudent(
                     preferred_courses,
@@ -236,7 +242,14 @@ class QSurvey:
 
         return MutualExclusivityConstraint.from_items(schedule, course, sparse)
 
-    def students(self, course_map, all_courses, features, schedule, sparse=False):
+    def students(
+        self,
+        course_map,
+        all_courses,
+        features,
+        schedule,
+        sparse=False,
+    ):
         course, _, _, _ = features
 
         students = []
