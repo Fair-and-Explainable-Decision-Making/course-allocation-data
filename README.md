@@ -1,6 +1,6 @@
 # Course Allocation Data
 
-This repository contains data files and Python scripts related to a course preference survey conducted in the UMass Amherst Computer Science department, for the Fall 2024 semester. The survey was designed to gather preferences from students across the CS department. The repository also includes scripts that process this survey data and simulate course allocation using the Yankee Swap algorithm.
+This repository contains data files and Python scripts related to a course preference survey conducted in the UMass Amherst Computer Science department, for the Fall 2024 semester. The survey was designed to gather preferences from students across the Manning College of Information and Computer Sciences (CICS). The repository also includes scripts that process this survey data and simulate course allocation using the Yankee Swap algorithm.
 
 ## Survey
 This survey was distributed a few weeks before the official enrollment period, allowing students to voluntarily share their anticipated course selections and scheduling preferences. The survey consisted of the following questions:
