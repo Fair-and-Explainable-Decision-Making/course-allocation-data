@@ -87,7 +87,7 @@ Use these steps for setting up a development environment to install and work wit
 
 3) Install the requierements by running `pip install -e .`
 
-4) Run any of the scripts by running `python3 scripts/...'
+4) Run any of the scripts by running `python3 scripts/...`
 
 ## License
 This project is open-source and available under the MIT License.
