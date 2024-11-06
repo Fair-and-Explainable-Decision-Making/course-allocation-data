@@ -77,7 +77,20 @@ The `scripts/` folder contains Python scripts to work with survey data and model
 - `yankee_swap.py`: This script runs a course allocation process using the Yankee Swap algorithm implemented in the yankee-swap-allocation-framework repository, leveraging both real and synthetic student data.
 The allocation script takes into account course capacities, time slots, and student preferences.
 
+## Getting Started
+### Installing Dependencies and Packages
+Use these steps for setting up a development environment to install and work with code in this template:
 
+1) Set up a Python 3 virtual environment using [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#) or [Virtualenv](https://virtualenv.pypa.io/en/latest/index.html).
+
+2) Activate your virtual environment by running `conda acivate your_environment` in a new terminal
+
+3) Install the requierements by running `pip install -e .`
+
+4) Run any of the scripts by running `python3 scripts/...'
+
+## License
+This project is open-source and available under the MIT License.
 
 
 
