@@ -2,10 +2,26 @@ from fair.allocation import general_yankee_swap_E
 from fair.metrics import utilitarian_welfare
 
 import qsurvey
+import numpy as np 
 
+import numpy as np
+import dill as pickle
+
+from fair.stats.survey import Corpus, SingleTopicSurvey
+from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+
+import qsurvey
+
+NUM_RAND_SAMP = 20
+NUM_SUB_KERNELS = 3
+SAMPLE_PER_STUDENT = 10
 SPARSE = False
+PLOT = True
+seed = 0
+RNG = np.random.default_rng(seed)
 
-survey_file = "resources/survey_data.csv"
+survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -21,12 +37,15 @@ schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
     course_map, all_courses, features, schedule, SPARSE
 )
-student_status_map = {students[i]: status for i, status in enumerate(statuses)}
-student_resp_map = {students[i]: response for i, response in enumerate(responses)}
+
 course_cap_map = {
     crs: crs_sec_cap_map[course_map[crs]["course num"]][int(course_map[crs]["section"])]
     for crs in all_courses
 }
+
+student_status_map = {students[i]: status for i, status in enumerate(statuses)}
+student_resp_map = {students[i]: response for i, response in enumerate(responses)}
+
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
