@@ -5,20 +5,13 @@ from sklearn.decomposition import PCA
 
 import qsurvey
 
+NUM_RAND_SAMP = 20
 NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-RNG = np.random.default_rng(0)
+RNG = np.random.default_rng(None)
 
-NUM_STUDENTS_PER_STATUS = {
-    1: 239,
-    2: 327,
-    3: 408,
-    4: 573,
-    5: 613,
-    6: 148,
-}
 status_color_map = {
     1: "lightsteelblue",
     2: "blue",
@@ -44,7 +37,7 @@ status_crs_prefix_map = {
     6: ["5", "6"],
 }
 
-survey_file = "resources/survey_data_test.csv"
+survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -69,17 +62,6 @@ course_cap_map = {
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
-
-print(f'Number of real students with empty preferences: {len([student.preferred_courses for student in students if len(student.preferred_courses)==0])}')
-
-
-n_responses_per_status=np.zeros(6)
-for student in students:
-    student_status=int(student_status_map[student])
-    n_responses_per_status[student_status-1]+=1
-NUM_RAND_SAMP = {i+1: NUM_STUDENTS_PER_STATUS[i+1]- int(n_responses_per_status[i]) for i in range(6)}
-
-NUM_RAND_SAMP = {i+1:500 for i in range(6)}
 
 status_mbeta_map = {}
 status_surveys_map = {}
@@ -171,10 +153,9 @@ def plot_data(status, data, num_students):
 
 status_synth_students_map = {}
 status_data_map = {}
-synth_students=[]
 for status in qsurvey.STATUS_LABEL_MAP.keys():
-    synth_students_status, data = qsurvey.synthesize_students(
-        NUM_RAND_SAMP[status],
+    synth_students, data = qsurvey.synthesize_students(
+        NUM_RAND_SAMP,
         course,
         features,
         schedule,
@@ -188,9 +169,9 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
         ),
         rng=RNG,
     )
-    status_synth_students_map[status] = synth_students_status
+    status_synth_students_map[status] = synth_students
     status_data_map[status] = data
-    synth_students = [*synth_students, *synth_students_status]
+    print(len([student.preferred_courses for student in synth_students if len(student.preferred_courses)==0]))
 
 proj_data_map, sign_data = project_data(status_data_map, course_map)
 
@@ -204,7 +185,3 @@ if PLOT:
         plt.annotate(f"{i+1}00s", xy=(x, y), xytext=(x, y))
     plt.title("Actual students (large circles) and synthetic students (small circles)")
     plt.show()
-
-
-
-print(f'Number of synthetic students with empty preferences: {len([student.preferred_courses for student in synth_students if len(student.preferred_courses)==0])}')
