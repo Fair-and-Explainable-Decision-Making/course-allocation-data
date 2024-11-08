@@ -72,10 +72,10 @@ def synthesize_students(
     while len(synth_data) < num_samples:
         sdata = distribution.sample()
         sdata = scale_up_responses(sdata, relevant_idxs, len(course_map))
-        if sdata.max() == 0.0:
-            continue
         # denormalize synthetic data
         sdata = np.round(7 * sdata) + 1
+        if sdata.max() == 1:
+            continue
         synth_data.append(sdata)
     synth_data = np.vstack(synth_data)
     data = np.vstack([data, synth_data])
