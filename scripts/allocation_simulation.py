@@ -129,6 +129,7 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
 synth_students = [LegacyStudent(student, student.preferred_courses, course) for student in synth_students]
 
 print(len(students), len(synth_students))
+print(len([student.preferred_courses for student in students if len(student.preferred_courses)==0]))
 print(len([student.preferred_courses for student in synth_students if len(student.preferred_courses)==0]))
 
 X = general_yankee_swap_E([*students, *synth_students], schedule)
