@@ -171,7 +171,6 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
     )
     status_synth_students_map[status] = synth_students
     status_data_map[status] = data
-    print(len([student.preferred_courses for student in synth_students if len(student.preferred_courses)==0]))
 
 proj_data_map, sign_data = project_data(status_data_map, course_map)
 
