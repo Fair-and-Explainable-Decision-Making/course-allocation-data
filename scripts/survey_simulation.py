@@ -11,6 +11,7 @@ SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
 RNG = np.random.default_rng(None)
+k=5
 
 status_color_map = {
     1: "lightsteelblue",
@@ -51,7 +52,7 @@ features = mp.features(course_map)
 course, slot, weekday, _ = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
-    course_map, all_courses, features, schedule, SPARSE
+    course_map, all_courses, features, schedule, k, SPARSE
 )
 student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 student_resp_map = {students[i]: response for i, response in enumerate(responses)}

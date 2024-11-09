@@ -248,6 +248,7 @@ class QSurvey:
         all_courses,
         features,
         schedule,
+        k,
         sparse=False,
     ):
         course, _, _, _ = features
@@ -255,21 +256,29 @@ class QSurvey:
         students = []
         responses = []
         statuses = []
+        
+        course_nums=[course_map[course]["course num"] for course in all_courses]
+        indices = [[i for i, x in enumerate(course_nums) if x == course] for course in list(set(course_nums))]
+
         for _, row in self.df.iterrows():
+            arr = [row[crs] if row[crs]>0 else 1 for crs in all_courses]
+            arr = [max(arr[index[0]:index[-1]+1]) for index in indices]
+            arr.sort()
+            valid_values = arr[::-1]
+            if len(valid_values) > k:
+                threshold = valid_values[k-1]
+            else:
+                threshold = 2
+            threshold = max(threshold,2)
             preferred = [
                 course_map[crs]["course num"]
                 for crs in all_courses
-                if not np.isnan(row[crs]) and row[crs] > 1
+                if not np.isnan(row[crs]) and row[crs] >= threshold
             ]
             total_num_courses = row["3"]
 
             if np.isnan(total_num_courses):
                 warnings.warn("total courses not specified; skipping student")
-                continue
-            if total_num_courses > len(preferred):
-                warnings.warn(
-                    "total courses greater than preferred courses; skipping student"
-                )
                 continue
 
             responses.append([row[crs] for crs in all_courses])
