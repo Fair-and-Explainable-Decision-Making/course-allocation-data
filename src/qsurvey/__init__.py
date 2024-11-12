@@ -60,6 +60,7 @@ def synthesize_students(
     max_courses,
     relevant_idxs,
     rng,
+    k,
 ):
     num_students = len(surveys)
     total_course_list = [int(survey.data().sum()) for survey in surveys]
@@ -82,6 +83,7 @@ def synthesize_students(
     students = SurveyStudent.from_responses(
         data[num_students:],
         total_course_list,
+        course_map,
         course,
         [
             qs.course_time_constr(features, schedule),
@@ -89,6 +91,7 @@ def synthesize_students(
         ],
         schedule,
         rng=rng,
+        k=k,
         max_total_courses=max_courses,
     )
 
@@ -102,11 +105,13 @@ class SurveyStudent(BaseAgent):
     def from_responses(
         responses: np.ndarray,
         total_course_list: list[int],
+        course_map,
         course: Course,
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
         rng: np.random.Generator,
-        threshold: int = 1,
+        k: int,
+        threshold: int = 2,
         max_total_courses: int = sys.maxsize,
         sparse: bool = False,
         memoize: bool = True,
@@ -139,11 +144,28 @@ class SurveyStudent(BaseAgent):
         params = truncnorm.fit(total_course_list)
 
         students = []
+
+        course_nums = [
+            course_map[course]["course num"] for course in list(course_map.keys())
+        ]
+        indices = [
+            [i for i, x in enumerate(course_nums) if x == course]
+            for course in list(set(course_nums))
+        ]
+
         for i in range(responses.shape[0]):
+            if k is not None:
+                arr = responses[i].copy()
+                arr = [max(arr[index[0] : index[-1] + 1]) for index in indices]
+                arr.sort()
+                valid_values = arr[::-1]
+                if len(valid_values) > k:
+                    threshold = valid_values[k - 1]
+                threshold = max(threshold, 2)
             preferred_courses = [
                 schedule[j].value(course)
                 for j in range(len(schedule))
-                if responses[i][j] > threshold
+                if responses[i][j] >= threshold
             ]
             total_courses = int(
                 min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
