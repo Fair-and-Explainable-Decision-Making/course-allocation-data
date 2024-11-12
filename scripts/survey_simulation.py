@@ -11,7 +11,7 @@ SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
 RNG = np.random.default_rng(None)
-k=5
+k = None
 
 status_color_map = {
     1: "lightsteelblue",

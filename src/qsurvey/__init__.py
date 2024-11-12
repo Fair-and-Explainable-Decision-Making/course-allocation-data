@@ -256,20 +256,24 @@ class QSurvey:
         students = []
         responses = []
         statuses = []
-        
-        course_nums=[course_map[course]["course num"] for course in all_courses]
-        indices = [[i for i, x in enumerate(course_nums) if x == course] for course in list(set(course_nums))]
 
+        course_nums = [course_map[course]["course num"] for course in all_courses]
+        indices = [
+            [i for i, x in enumerate(course_nums) if x == course]
+            for course in list(set(course_nums))
+        ]
+        threshold = 2
         for _, row in self.df.iterrows():
-            arr = [row[crs] if row[crs]>0 else 1 for crs in all_courses]
-            arr = [max(arr[index[0]:index[-1]+1]) for index in indices]
-            arr.sort()
-            valid_values = arr[::-1]
-            if len(valid_values) > k:
-                threshold = valid_values[k-1]
-            else:
-                threshold = 2
-            threshold = max(threshold,2)
+            if k is not None:
+                arr = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
+                arr = [max(arr[index[0] : index[-1] + 1]) for index in indices]
+                arr.sort()
+                valid_values = arr[::-1]
+                if len(valid_values) > k:
+                    threshold = valid_values[k - 1]
+                else:
+                    threshold = 2
+                threshold = max(threshold, 2)
             preferred = [
                 course_map[crs]["course num"]
                 for crs in all_courses
