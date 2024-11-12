@@ -10,8 +10,8 @@ NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-RNG = np.random.default_rng(0)
-K = 5
+RNG = np.random.default_rng(None)
+K = None
 
 status_color_map = {
     1: "lightsteelblue",
