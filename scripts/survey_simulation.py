@@ -10,8 +10,9 @@ NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-RNG = np.random.default_rng(None)
+RNG = np.random.default_rng(0)
 K = None
+threshold = None
 
 status_color_map = {
     1: "lightsteelblue",
@@ -51,9 +52,21 @@ all_courses = [crs for crs in course_map.keys()]
 features = mp.features(course_map)
 course, slot, weekday, _ = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
+
+section_map = {
+    course: [
+        i
+        for i, num in enumerate(
+            details["course num"] for details in course_map.values()
+        )
+        if num == course
+    ]
+    for course in {details["course num"] for details in course_map.values()}
+}
 students, responses, statuses = qs.students(
-    course_map, all_courses, features, schedule, K, SPARSE
+    course_map, all_courses, features, schedule, section_map, K, threshold, SPARSE
 )
+
 student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 student_resp_map = {students[i]: response for i, response in enumerate(responses)}
 course_cap_map = {
@@ -164,12 +177,14 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
         status_surveys_map[status],
         status_mbeta_map[status],
         course_map,
+        section_map,
         status_max_course_map[status],
         qsurvey.get_status_relevant(
             status, all_courses, course_map, status_crs_prefix_map
         ),
         rng=RNG,
         k=K,
+        threshold=threshold,
     )
     status_synth_students_map[status] = synth_students
     status_data_map[status] = data

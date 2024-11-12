@@ -48,6 +48,24 @@ def scale_up_responses(responses, relevant_idxs, n):
     return new_responses
 
 
+def get_threshold(response, section_map, k, threshold):
+    if k is None:
+        if threshold is None:
+            return 2
+        else:
+            return threshold
+    else:
+        valid_values = [
+            max(response[index[0] : index[-1] + 1]) for index in section_map.values()
+        ]
+        valid_values = sorted(valid_values, reverse=True)
+        if len(valid_values) > k:
+            threshold = valid_values[k - 1]
+        else:
+            threshold = 2
+        return max(threshold, 2)
+
+
 def synthesize_students(
     num_samples,
     course,
@@ -57,10 +75,12 @@ def synthesize_students(
     surveys,
     distribution,
     course_map,
+    section_map,
     max_courses,
     relevant_idxs,
     rng,
     k,
+    threshold,
 ):
     num_students = len(surveys)
     total_course_list = [int(survey.data().sum()) for survey in surveys]
@@ -83,8 +103,8 @@ def synthesize_students(
     students = SurveyStudent.from_responses(
         data[num_students:],
         total_course_list,
-        course_map,
         course,
+        section_map,
         [
             qs.course_time_constr(features, schedule),
             qs.course_sect_constr(features, schedule),
@@ -92,6 +112,7 @@ def synthesize_students(
         schedule,
         rng=rng,
         k=k,
+        threshold=threshold,
         max_total_courses=max_courses,
     )
 
@@ -105,13 +126,13 @@ class SurveyStudent(BaseAgent):
     def from_responses(
         responses: np.ndarray,
         total_course_list: list[int],
-        course_map,
         course: Course,
+        section_map,
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
         rng: np.random.Generator,
         k: int,
-        threshold: int = 2,
+        threshold: int,
         max_total_courses: int = sys.maxsize,
         sparse: bool = False,
         memoize: bool = True,
@@ -145,28 +166,15 @@ class SurveyStudent(BaseAgent):
 
         students = []
 
-        course_nums = [
-            course_map[course]["course num"] for course in list(course_map.keys())
-        ]
-        indices = [
-            [i for i, x in enumerate(course_nums) if x == course]
-            for course in list(set(course_nums))
-        ]
-
         for i in range(responses.shape[0]):
-            if k is not None:
-                arr = responses[i].copy()
-                arr = [max(arr[index[0] : index[-1] + 1]) for index in indices]
-                arr.sort()
-                valid_values = arr[::-1]
-                if len(valid_values) > k:
-                    threshold = valid_values[k - 1]
-                threshold = max(threshold, 2)
+            threshold = get_threshold(responses[i], section_map, k, threshold)
             preferred_courses = [
                 schedule[j].value(course)
                 for j in range(len(schedule))
                 if responses[i][j] >= threshold
             ]
+            print(threshold)
+            print(preferred_courses)
             total_courses = int(
                 min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
             )
@@ -270,7 +278,9 @@ class QSurvey:
         all_courses,
         features,
         schedule,
+        section_map,
         k,
+        threshold,
         sparse=False,
     ):
         course, _, _, _ = features
@@ -279,28 +289,15 @@ class QSurvey:
         responses = []
         statuses = []
 
-        course_nums = [course_map[course]["course num"] for course in all_courses]
-        indices = [
-            [i for i, x in enumerate(course_nums) if x == course]
-            for course in list(set(course_nums))
-        ]
-        threshold = 2
         for _, row in self.df.iterrows():
-            if k is not None:
-                arr = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
-                arr = [max(arr[index[0] : index[-1] + 1]) for index in indices]
-                arr.sort()
-                valid_values = arr[::-1]
-                if len(valid_values) > k:
-                    threshold = valid_values[k - 1]
-                else:
-                    threshold = 2
-                threshold = max(threshold, 2)
+            response = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
+            threshold = get_threshold(response, section_map, k, threshold)
             preferred = [
                 course_map[crs]["course num"]
                 for crs in all_courses
                 if not np.isnan(row[crs]) and row[crs] >= threshold
             ]
+
             total_num_courses = row["3"]
 
             if np.isnan(total_num_courses):
