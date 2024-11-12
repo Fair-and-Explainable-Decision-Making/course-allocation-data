@@ -10,7 +10,7 @@ NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-RNG = np.random.default_rng(0)
+RNG = np.random.default_rng(None)
 K = None
 threshold = None
 
