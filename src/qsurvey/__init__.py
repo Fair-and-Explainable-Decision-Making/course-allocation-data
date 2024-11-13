@@ -48,22 +48,26 @@ def scale_up_responses(responses, relevant_idxs, n):
     return new_responses
 
 
-def get_threshold(response, section_map, k, threshold):
-    if k is None:
-        if threshold is None:
-            return 2
-        else:
-            return threshold
-    else:
-        valid_values = [
-            max(response[index[0] : index[-1] + 1]) for index in section_map.values()
-        ]
-        valid_values = sorted(valid_values, reverse=True)
-        if len(valid_values) > k:
-            threshold = valid_values[k - 1]
-        else:
-            threshold = 2
-        return max(threshold, 2)
+def top_preferred(course_map, schedule, course, response, k):
+    all_courses = list(course_map.values())
+    order = np.argsort(response)[::-1]
+
+    top_course_nums = set()
+    idxs = []
+
+    for idx in order:
+        if len(top_course_nums) >= k or response[idx] == 1:
+            break
+
+        if all_courses[idx]["course num"] not in top_course_nums:
+            same_value_indices = [i for i in order if response[i] == response[idx]]
+            idxs.extend(same_value_indices)
+            top_course_nums.update(
+                all_courses[index]["course num"] for index in same_value_indices
+            )
+
+    preferred_courses = sorted([schedule[j].value(course) for j in idxs])
+    return preferred_courses
 
 
 def synthesize_students(
@@ -75,12 +79,10 @@ def synthesize_students(
     surveys,
     distribution,
     course_map,
-    section_map,
     max_courses,
     relevant_idxs,
     rng,
     k,
-    threshold,
 ):
     num_students = len(surveys)
     total_course_list = [int(survey.data().sum()) for survey in surveys]
@@ -104,7 +106,7 @@ def synthesize_students(
         data[num_students:],
         total_course_list,
         course,
-        section_map,
+        course_map,
         [
             qs.course_time_constr(features, schedule),
             qs.course_sect_constr(features, schedule),
@@ -112,7 +114,6 @@ def synthesize_students(
         schedule,
         rng=rng,
         k=k,
-        threshold=threshold,
         max_total_courses=max_courses,
     )
 
@@ -127,12 +128,11 @@ class SurveyStudent(BaseAgent):
         responses: np.ndarray,
         total_course_list: list[int],
         course: Course,
-        section_map,
+        course_map,
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
         rng: np.random.Generator,
         k: int,
-        threshold: int,
         max_total_courses: int = sys.maxsize,
         sparse: bool = False,
         memoize: bool = True,
@@ -167,14 +167,9 @@ class SurveyStudent(BaseAgent):
         students = []
 
         for i in range(responses.shape[0]):
-            threshold = get_threshold(responses[i], section_map, k, threshold)
-            preferred_courses = [
-                schedule[j].value(course)
-                for j in range(len(schedule))
-                if responses[i][j] >= threshold
-            ]
-            print(threshold)
-            print(preferred_courses)
+            preferred_courses = top_preferred(
+                course_map, schedule, course, responses[i], k
+            )
             total_courses = int(
                 min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
             )
@@ -278,9 +273,7 @@ class QSurvey:
         all_courses,
         features,
         schedule,
-        section_map,
         k,
-        threshold,
         sparse=False,
     ):
         course, _, _, _ = features
@@ -291,13 +284,7 @@ class QSurvey:
 
         for _, row in self.df.iterrows():
             response = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
-            threshold = get_threshold(response, section_map, k, threshold)
-            preferred = [
-                course_map[crs]["course num"]
-                for crs in all_courses
-                if not np.isnan(row[crs]) and row[crs] >= threshold
-            ]
-
+            preferred = top_preferred(course_map, schedule, course, response, k)
             total_num_courses = row["3"]
 
             if np.isnan(total_num_courses):
