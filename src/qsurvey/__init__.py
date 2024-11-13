@@ -165,7 +165,6 @@ class SurveyStudent(BaseAgent):
         params = truncnorm.fit(total_course_list)
 
         students = []
-
         for i in range(responses.shape[0]):
             preferred_courses = top_preferred(
                 course_map, schedule, course, responses[i], k
@@ -281,7 +280,6 @@ class QSurvey:
         students = []
         responses = []
         statuses = []
-
         for _, row in self.df.iterrows():
             response = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
             preferred = top_preferred(course_map, schedule, course, response, k)
