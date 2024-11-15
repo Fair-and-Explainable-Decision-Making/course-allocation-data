@@ -14,6 +14,7 @@ from fair.constraint import (
 )
 from fair.feature import Course, Section, Slot, Weekday, slots_for_time_range
 from fair.item import ScheduleItem
+from fair.stats import mBeta
 from fair.valuation import ConstraintSatifactionValuation
 from scipy.stats import truncnorm
 
@@ -93,6 +94,21 @@ def synthesize_students(
     )
 
     return students, data
+
+
+class mBetaPoint(mBeta):
+
+    def __init__(self, probs: np.ndarray, rng: np.random.Generator = None):
+        self.probs = probs
+        self.bernoullis = [lambda: rng.binomial(1, prob) for prob in probs]
+
+    def sample(self, n: int = 1):
+        samples = []
+        for i in range(n):
+            samp = [bern() for bern in self.bernoullis]
+            samples.append(np.array(samp))
+
+        return samples
 
 
 class SurveyStudent(BaseAgent):
