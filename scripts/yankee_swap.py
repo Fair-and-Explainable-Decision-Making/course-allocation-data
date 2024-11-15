@@ -1,11 +1,12 @@
-from fair.allocation import general_yankee_swap_E, round_robin
+from fair.allocation import general_yankee_swap_E, round_robin, serial_dictatorship
 from fair.metrics import utilitarian_welfare, nash_welfare
+from fair.optimization import StudentAllocationProgram
 
 import qsurvey
 
 SPARSE = False
 
-survey_file = "resources/random_survey.csv"
+survey_file = "resources/survey_data.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -31,9 +32,21 @@ students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-# X = general_yankee_swap_E(students, schedule)
-# print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))
+print(f"Data type of first preferred_course for the first student: {type(students[0].preferred_courses[0])}")
+
+X = general_yankee_swap_E(students, schedule)
+print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))
 # print("YS nash welfare: ", nash_welfare(X[0], students, schedule))
 
-X = round_robin(students, schedule)
-print("RR utilitarian welfare: ", utilitarian_welfare(X, students, schedule))
+X_RR = round_robin(students, schedule)
+print("RR utilitarian welfare: ", utilitarian_welfare(X_RR, students, schedule))
+
+X_SD = serial_dictatorship(students, schedule)
+print("SD utilitarian welfare: ", utilitarian_welfare(X_SD, students, schedule))
+
+orig_students = [student.student for student in students]
+program = StudentAllocationProgram(orig_students, schedule).compile()
+opt_alloc = program.formulateUSW().solve()
+X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
+
+print(f"ILP utilitarian welfare: {utilitarian_welfare(X_ILP, students, schedule)}")
