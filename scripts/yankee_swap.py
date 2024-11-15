@@ -32,7 +32,9 @@ students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-print(f"Data type of first preferred_course for the first student: {type(students[0].preferred_courses[0])}")
+print(
+    f"Data type of first preferred_course for the first student: {type(students[0].preferred_courses[0])}"
+)
 
 X = general_yankee_swap_E(students, schedule)
 print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))
