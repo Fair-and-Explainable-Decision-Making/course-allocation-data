@@ -257,8 +257,8 @@ class QSurvey:
         statuses = []
         for _, row in self.df.iterrows():
             preferred = [
-                course_map[crs]["course num"]
-                for crs in all_courses
+                schedule[j]
+                for j, crs in enumerate(all_courses)
                 if not np.isnan(row[crs]) and row[crs] > 1
             ]
             total_num_courses = row["3"]
