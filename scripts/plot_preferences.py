@@ -8,7 +8,6 @@ import qsurvey
 import matplotlib.pyplot as plt
 from collections import Counter
 
-NUM_RAND_SAMP = 20
 NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
@@ -22,6 +21,14 @@ status_max_course_map = {
     4: 6,
     5: 4,
     6: 4,
+}
+NUM_STUDENTS_PER_STATUS = {
+    1: 239,
+    2: 327,
+    3: 408,
+    4: 573,
+    5: 613,
+    6: 148,
 }
 status_crs_prefix_map = {
     1: ["1", "2", "3"],
@@ -59,10 +66,16 @@ students = [
 ]
 
 real_student_preferred_courses = [[item.values[0]+'-'+item.values[3] for item in student.student.preferred_courses] for student in students]
-print(len(students))
+
+n_responses_per_status=np.zeros(6)
+for student in students:
+    student_status=int(student_status_map[student])
+    n_responses_per_status[student_status-1]+=1
+NUM_RAND_SAMP = {i+1: NUM_STUDENTS_PER_STATUS[i+1]- int(n_responses_per_status[i]) for i in range(6)}
+
 
 synthetic_student_preferences_seeds=[]
-for seed in range(0):
+for seed in range(1):
     RNG = np.random.default_rng(seed)
     status_mbeta_map = {}
     status_surveys_map = {}
@@ -96,7 +109,7 @@ for seed in range(0):
     synth_students= []
     for status in qsurvey.STATUS_LABEL_MAP.keys():
         synth_students_status, data = qsurvey.synthesize_students(
-            NUM_RAND_SAMP,
+            NUM_RAND_SAMP[status],
             course,
             features,
             schedule,
@@ -114,8 +127,7 @@ for seed in range(0):
         status_synth_students_map[status] = synth_students_status
         status_data_map[status] = data
         synth_students = [*synth_students, *synth_students_status]
-    print(len(synth_students))
-    exit()
+    # print([[item.values[0]+'-'+item.values[3] for item in student.preferred_courses] for student in synth_students])
     synthetic_student_preferences_seeds.append([[item.values[0]+'-'+item.values[3] for item in student.preferred_courses] for student in synth_students])
 # Flatten the lists to count occurrences of each course
 real_courses = [course for sublist in real_student_preferred_courses for course in sublist]
@@ -164,7 +176,7 @@ ax.set_xticklabels(all_courses, rotation=45, ha='right')
 ax.legend()
 
 plt.tight_layout()
-plt.savefig(f"real_vs_synthetic_preferences_K={K}{seed}.png", dpi=300)
+plt.savefig(f"real_vs_synthetic_preferences_K={K}_{seed}.png", dpi=300)
 plt.close()
 
 
