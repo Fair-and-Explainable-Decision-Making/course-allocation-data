@@ -66,7 +66,7 @@ def top_preferred(course_map, schedule, course, response, k):
                 all_courses[index]["course num"] for index in same_value_indices
             )
 
-    preferred_courses = [schedule[j] for j in idxs]
+    preferred_courses = [schedule[j].value(course) for j in idxs]
     return preferred_courses
 
 

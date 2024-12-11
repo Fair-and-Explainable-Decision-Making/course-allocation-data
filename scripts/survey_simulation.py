@@ -63,7 +63,6 @@ course_cap_map = {
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
-exit()
 
 status_mbeta_map = {}
 status_surveys_map = {}
