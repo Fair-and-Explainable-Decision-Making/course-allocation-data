@@ -7,8 +7,9 @@ import qsurvey
 
 import matplotlib.pyplot as plt
 from collections import Counter
+import copy
 
-NUM_SUB_KERNELS = 3
+NUM_SUB_KERNELS = 3 # change to 1
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
@@ -38,8 +39,16 @@ status_crs_prefix_map = {
     5: ["5", "6"],
     6: ["5", "6"],
 }
-
+status_color_map = {
+    1: "lightsteelblue",
+    2: "blue",
+    3: "forestgreen",
+    4: "darkkhaki",
+    5: "darkorange",
+    6: "red",
+}
 survey_file = "resources/survey_data.csv"
+# survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -65,14 +74,6 @@ students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-real_student_preferred_courses = [
-    [
-        item.values[0] + "-" + item.values[3]
-        for item in student.student.preferred_courses
-    ]
-    for student in students
-]
-
 n_responses_per_status = np.zeros(6)
 for student in students:
     student_status = int(student_status_map[student])
@@ -83,8 +84,8 @@ NUM_RAND_SAMP = {
 }
 
 
-synthetic_student_preferences_seeds = []
-for seed in range(1):
+synthetic_student_preferences_seeds = [[],[],[],[],[],[]]
+for seed in range(5):
     RNG = np.random.default_rng(seed)
     status_mbeta_map = {}
     status_surveys_map = {}
@@ -117,7 +118,9 @@ for seed in range(1):
     status_synth_students_map = {}
     status_data_map = {}
     synth_students = []
+    synth_student_status_map ={}
     for status in qsurvey.STATUS_LABEL_MAP.keys():
+        synthetic_student_preferences_seeds_status=[]
         synth_students_status, data = qsurvey.synthesize_students(
             NUM_RAND_SAMP[status],
             course,
@@ -137,183 +140,207 @@ for seed in range(1):
         status_synth_students_map[status] = synth_students_status
         status_data_map[status] = data
         synth_students = [*synth_students, *synth_students_status]
-    # print([[item.values[0]+'-'+item.values[3] for item in student.preferred_courses] for student in synth_students])
-    synthetic_student_preferences_seeds.append(
-        [
+        for synth_student in synth_students_status:
+            synth_student_status_map[synth_student]= status 
+        print(status, [student.preferred_courses for student in synth_students])
+
+
+        synthetic_student_preferences_seeds[status-1].append(
             [
-                item.values[0] + "-" + item.values[3]
-                for item in student.preferred_courses
+                [
+                    item.values[0] + "-" + item.values[3]
+                    for item in student.preferred_courses
+                ]
+                for student in synth_students_status
             ]
-            for student in synth_students
+        )
+
+all_students=students
+all_synth_students = synth_students
+
+for status in range(1,7):
+
+    students = [student for student in all_students if student_status_map[student]==status]
+    synth_students = [student for student in all_synth_students if synth_student_status_map[student]==status]
+    print(len(students), len(synth_students))
+
+    real_student_preferred_courses = [
+        [
+            item.values[0] + "-" + item.values[3]
+            for item in student.student.preferred_courses
         ]
-    )
-# Flatten the lists to count occurrences of each course
-real_courses = [
-    course for sublist in real_student_preferred_courses for course in sublist
-]
-
-# Get unique courses for plotting
-all_courses = sorted(
-    set(
-        real_courses
-        + [
-            course
-            for seed in synthetic_student_preferences_seeds
-            for sublist in seed
-            for course in sublist
-        ]
-    )
-)
-
-# Calculate the percentage of real and synthetic students who like each course
-real_course_counts = {course: real_courses.count(course) for course in all_courses}
-real_student_count = len(real_student_preferred_courses)
-real_percentages = [
-    real_course_counts[course] / real_student_count * 100 for course in all_courses
-]
-
-# For synthetic students with different seeds
-synthetic_percentages_per_seed = []
-for seed_preferences in synthetic_student_preferences_seeds:
-    synthetic_courses = [course for sublist in seed_preferences for course in sublist]
-    synthetic_course_counts = {
-        course: synthetic_courses.count(course) for course in all_courses
-    }
-    synthetic_percentages = [
-        synthetic_course_counts[course] / len(seed_preferences) * 100
-        for course in all_courses
+        for student in students
     ]
-    synthetic_percentages_per_seed.append(synthetic_percentages)
 
-# Calculate average and standard error for synthetic percentages
-synthetic_percentages_mean = np.mean(synthetic_percentages_per_seed, axis=0)
-synthetic_percentages_std = np.std(synthetic_percentages_per_seed, axis=0)
-synthetic_percentages_se = synthetic_percentages_std / np.sqrt(
-    len(synthetic_percentages_per_seed)
-)
+    # Flatten the lists to count occurrences of each course
+    real_courses = [
+        course for sublist in real_student_preferred_courses for course in sublist
+    ]
+    
 
-# Plotting the frequency per class with error bars
-fig, ax = plt.subplots(figsize=(20, 6))
-bar_width = 0.35
-index = np.arange(len(all_courses))
+    # Get unique courses for plotting
+    all_courses = sorted(
+        set(
+            real_courses
+            + [
+                course
+                for seed in synthetic_student_preferences_seeds[status-1]
+                for sublist in seed
+                for course in sublist
+            ]
+        )
+    )
 
-# Plot bars for real student percentages
-ax.bar(
-    index, real_percentages, bar_width, label="Real Students", color="blue", alpha=0.7
-)
+    # Calculate the percentage of real and synthetic students who like each course
+    real_course_counts = {course: real_courses.count(course) for course in all_courses}
+    real_student_count = len(real_student_preferred_courses)
+    real_percentages = [
+        real_course_counts[course] / real_student_count * 100 for course in all_courses
+    ]
 
-# Plot bars for synthetic student percentages
-bars = ax.bar(
-    index + bar_width,
-    synthetic_percentages_mean,
-    bar_width,
-    label="Synthetic Students",
-    color="orange",
-    alpha=0.7,
-)
+    # For synthetic students with different seeds
+    synthetic_percentages_per_seed = []
+    for seed_preferences in synthetic_student_preferences_seeds[status-1]:
+        synthetic_courses = [course for sublist in seed_preferences for course in sublist]
+        synthetic_course_counts = {
+            course: synthetic_courses.count(course) for course in all_courses
+        }
+        synthetic_percentages = [
+            synthetic_course_counts[course] / len(seed_preferences) * 100
+            for course in all_courses
+        ]
+        synthetic_percentages_per_seed.append(synthetic_percentages)
 
-# Add error bars to synthetic students' bars
-ax.errorbar(
-    index + bar_width,
-    synthetic_percentages_mean,
-    yerr=synthetic_percentages_se,
-    fmt="none",
-    color="black",
-    capsize=5,
-)
+    # Calculate average and standard error for synthetic percentages
+    synthetic_percentages_mean = np.mean(synthetic_percentages_per_seed, axis=0)
+    synthetic_percentages_std = np.std(synthetic_percentages_per_seed, axis=0)
+    synthetic_percentages_se = synthetic_percentages_std / np.sqrt(
+        len(synthetic_percentages_per_seed)
+    )
 
-# Adding labels and title
-ax.set_xlabel("Courses")
-ax.set_ylabel("Percentage of Students (%)")
-ax.set_title("Comparison of Course Preferences: Real vs Synthetic Students")
-ax.set_xticks(index + bar_width / 2)
-ax.set_xticklabels(all_courses, rotation=45, ha="right")
-ax.legend()
+    # Plotting the frequency per class with error bars
+    fig, ax = plt.subplots(figsize=(20, 6))
+    bar_width = 0.35
+    index = np.arange(len(all_courses))
 
-plt.tight_layout()
-plt.savefig(f"real_vs_synthetic_preferences_K={K}_{seed}.png", dpi=300)
-plt.close()
+    # Plot bars for real student percentages
+    ax.bar(
+        index, real_percentages, bar_width, label="Real Students", color=status_color_map[status], alpha=1
+    )
+
+    # Plot bars for synthetic student percentages
+    bars = ax.bar(
+        index + bar_width,
+        synthetic_percentages_mean,
+        bar_width,
+        label="Synthetic Students",
+        color=status_color_map[status],
+        alpha=0.4,
+    )
+
+    # Add error bars to synthetic students' bars
+    ax.errorbar(
+        index + bar_width,
+        synthetic_percentages_mean,
+        yerr=synthetic_percentages_se,
+        fmt="none",
+        color="black",
+        capsize=5,
+    )
+
+    # Adding labels and title
+    ax.set_xlabel("Courses")
+    ax.set_ylabel("Percentage of Students (%)")
+    ax.set_title("Comparison of Course Preferences: Real vs Synthetic Students")
+    ax.set_xticks(index + bar_width / 2)
+    ax.set_xticklabels(all_courses, rotation=45, ha="right")
+    ax.legend()
+
+    plt.tight_layout()
+    plt.savefig(f"real_vs_synthetic_preferences_{K}_{seed}_{status}.png", dpi=300)
+    # plt.show()
+    # plt.close()
 
 
-# Calculate how many courses each student likes
-real_student_counts = [len(pref) for pref in real_student_preferred_courses]
-synthetic_student_counts_seeds = [
-    [len(pref) for pref in seed] for seed in synthetic_student_preferences_seeds
-]
+    # Calculate how many courses each student likes
+    real_student_counts = [len(pref) for pref in real_student_preferred_courses]
+    synthetic_student_counts_seeds = [
+        [len(pref) for pref in seed] for seed in synthetic_student_preferences_seeds[status-1]
+    ]
 
-# Count the frequency of number of liked items for real students
-real_freq = Counter(real_student_counts)
+    # Count the frequency of number of liked items for real students
+    real_freq = Counter(real_student_counts)
 
-# Count the frequency of number of liked items for synthetic students across all seeds
-synthetic_freqs_seeds = [Counter(seed) for seed in synthetic_student_counts_seeds]
+    # Count the frequency of number of liked items for synthetic students across all seeds
+    synthetic_freqs_seeds = [Counter(seed) for seed in synthetic_student_counts_seeds]
 
-# Get the union of keys across real and synthetic data for consistent x-axis
-all_liked_counts = sorted(
-    set(real_freq.keys()).union(*[freq.keys() for freq in synthetic_freqs_seeds])
-)
+    # Get the union of keys across real and synthetic data for consistent x-axis
+    all_liked_counts = sorted(
+        set(real_freq.keys()).union(*[freq.keys() for freq in synthetic_freqs_seeds])
+    )
 
-# Create frequency arrays for plotting
-real_freq_values = [real_freq.get(count, 0) for count in all_liked_counts]
-synthetic_freqs_values_seeds = [
-    [freq.get(count, 0) for count in all_liked_counts] for freq in synthetic_freqs_seeds
-]
+    # Create frequency arrays for plotting
+    real_freq_values = [real_freq.get(count, 0) for count in all_liked_counts]
+    synthetic_freqs_values_seeds = [
+        [freq.get(count, 0) for count in all_liked_counts] for freq in synthetic_freqs_seeds
+    ]
 
-# Calculate mean and standard error for synthetic frequencies
-synthetic_freqs_mean = np.mean(synthetic_freqs_values_seeds, axis=0)
-synthetic_freqs_se = np.std(synthetic_freqs_values_seeds, axis=0) / np.sqrt(
-    len(synthetic_student_preferences_seeds)
-)
+    # Calculate mean and standard error for synthetic frequencies
+    synthetic_freqs_mean = np.mean(synthetic_freqs_values_seeds, axis=0)
+    synthetic_freqs_se = np.std(synthetic_freqs_values_seeds, axis=0) / np.sqrt(
+        len(synthetic_student_preferences_seeds[status-1])
+    )
 
-# Normalize frequencies to percentages
-real_total = len(real_student_preferred_courses)
-synthetic_totals = [len(seed) for seed in synthetic_student_preferences_seeds]
+    # Normalize frequencies to percentages
+    real_total = len(real_student_preferred_courses)
+    synthetic_totals = [len(seed) for seed in synthetic_student_preferences_seeds[status-1]]
 
-real_percentages = [freq / real_total * 100 for freq in real_freq_values]
-synthetic_percentages_mean = [
-    mean / np.mean(synthetic_totals) * 100 for mean in synthetic_freqs_mean
-]
-synthetic_percentages_se = [
-    se / np.mean(synthetic_totals) * 100 for se in synthetic_freqs_se
-]
+    real_percentages = [freq / real_total * 100 for freq in real_freq_values]
+    synthetic_percentages_mean = [
+        mean / np.mean(synthetic_totals) * 100 for mean in synthetic_freqs_mean
+    ]
+    synthetic_percentages_se = [
+        se / np.mean(synthetic_totals) * 100 for se in synthetic_freqs_se
+    ]
 
-# Plotting
-fig, ax = plt.subplots(figsize=(20, 6))
-bar_width = 0.35
-index = np.arange(len(all_liked_counts))
+    # Plotting
+    fig, ax = plt.subplots(figsize=(20, 6))
+    bar_width = 0.35
+    index = np.arange(len(all_liked_counts))
 
-# Plot bars for real students
-ax.bar(
-    index, real_percentages, bar_width, label="Real Students", color="blue", alpha=0.7
-)
+    # Plot bars for real students
+    ax.bar(
+        index, real_percentages, bar_width, label="Real Students", color=status_color_map[status], alpha=1
+    )
 
-# Plot bars for synthetic students
-ax.bar(
-    index + bar_width,
-    synthetic_percentages_mean,
-    bar_width,
-    label="Synthetic Students (Average)",
-    color="orange",
-    alpha=0.7,
-)
+    # Plot bars for synthetic students
+    ax.bar(
+        index + bar_width,
+        synthetic_percentages_mean,
+        bar_width,
+        label="Synthetic Students (Average)",
+        color=status_color_map[status],
+        alpha=0.4,
+    )
 
-# Add error bars for synthetic students
-ax.errorbar(
-    index + bar_width,
-    synthetic_percentages_mean,
-    yerr=synthetic_percentages_se,
-    fmt="none",
-    color="black",
-    capsize=5,
-)
+    # Add error bars for synthetic students
+    ax.errorbar(
+        index + bar_width,
+        synthetic_percentages_mean,
+        yerr=synthetic_percentages_se,
+        fmt="none",
+        color="black",
+        capsize=5,
+    )
 
-# Adding labels and title
-ax.set_xlabel("Number of Classes Liked")
-ax.set_ylabel("Percentage of Students (%)")
-ax.set_title("Frequency of Number of Classes Liked: Real vs Synthetic Students")
-ax.set_xticks(index + bar_width / 2)
-ax.set_xticklabels(all_liked_counts)
-ax.legend()
+    # Adding labels and title
+    ax.set_xlabel("Number of Classes Liked")
+    ax.set_ylabel("Percentage of Students (%)")
+    ax.set_title("Frequency of Number of Classes Liked: Real vs Synthetic Students")
+    ax.set_xticks(index + bar_width / 2)
+    ax.set_xticklabels(all_liked_counts)
+    ax.legend()
 
-plt.tight_layout()
-plt.show()
-plt.savefig(f"real_vs_synthetic_frequencies__K={K}_{seed}.png", dpi=300)
+    plt.tight_layout()
+    # plt.show()
+    plt.savefig(f"real_vs_synthetic_frequencies__{K}_{seed}_{status}.png", dpi=300)
