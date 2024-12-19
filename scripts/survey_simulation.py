@@ -49,7 +49,7 @@ qs = qsurvey.QSurvey(survey_file, mp, list(crs_sec_cap_map.keys()))
 course_map = mp.mapping(qs.all_courses)
 all_courses = [crs for crs in course_map.keys()]
 features = mp.features(course_map)
-course, slot, weekday, _ = features
+course, slot, weekday, section = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
     course_map, all_courses, features, schedule, K, SPARSE
@@ -158,6 +158,7 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
     synth_students, data = qsurvey.synthesize_students(
         NUM_RAND_SAMP,
         course,
+        section,
         features,
         schedule,
         qs,

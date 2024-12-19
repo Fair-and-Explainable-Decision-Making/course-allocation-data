@@ -73,6 +73,7 @@ def top_preferred(course_map, schedule, course, response, k):
 def synthesize_students(
     num_samples,
     course,
+    section,
     features,
     schedule,
     qs,
@@ -106,6 +107,7 @@ def synthesize_students(
         data[num_students:],
         total_course_list,
         course,
+        section,
         course_map,
         [
             qs.course_time_constr(features, schedule),
@@ -212,8 +214,20 @@ class SurveyStudent(BaseAgent):
         self.preferred_courses = preferred_courses
         self.total_courses = total_courses
 
-        all_courses = [item.value(course) for item in schedule]
-        undesirable_courses = list(set(all_courses).difference(self.preferred_courses))
+        all_courses = [(item.value(course), item.value(section)) for item in schedule]
+        self.all_courses_constraint = PreferenceConstraint.from_item_lists(
+            schedule,
+            [all_courses],
+            [self.total_courses],
+            [course, section],
+            sparse,
+        )
+
+        undesirable_courses = [
+            (item.value(course), item.value(section))
+            for item in schedule
+            if item not in self.preferred_courses
+        ]
         self.undesirable_courses_constraint = PreferenceConstraint.from_item_lists(
             schedule,
             [undesirable_courses],
@@ -221,9 +235,13 @@ class SurveyStudent(BaseAgent):
             [course, section],
             sparse,
         )
+
+        preferred_values = [
+            (item.value(course), item.value(section)) for item in self.preferred_courses
+        ]
         self.preferred_courses_constraint = PreferenceConstraint.from_item_lists(
             schedule,
-            [[self.preferred_courses]],
+            [preferred_values],
             [self.total_courses],
             [course, section],
             sparse,
