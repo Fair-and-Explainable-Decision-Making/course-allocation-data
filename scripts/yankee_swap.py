@@ -32,7 +32,5 @@ students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-print([student.preferred_courses for student in students])
-
 X = general_yankee_swap_E(students, schedule)
 print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))

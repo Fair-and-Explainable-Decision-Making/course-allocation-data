@@ -218,14 +218,14 @@ class SurveyStudent(BaseAgent):
             schedule,
             [undesirable_courses],
             [0],
-            [course,section],
+            [course, section],
             sparse,
         )
         self.preferred_courses_constraint = PreferenceConstraint.from_item_lists(
             schedule,
             [[self.preferred_courses]],
             [self.total_courses],
-            [course,section],
+            [course, section],
             sparse,
         )
 
