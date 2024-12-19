@@ -6,7 +6,7 @@ import qsurvey
 SPARSE = False
 K = 5
 
-survey_file = "resources/survey_data.csv"
+survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -31,6 +31,8 @@ course_cap_map = {
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
+
+print([student.preferred_courses for student in students])
 
 X = general_yankee_swap_E(students, schedule)
 print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))

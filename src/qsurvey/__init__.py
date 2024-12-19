@@ -66,7 +66,7 @@ def top_preferred(course_map, schedule, course, response, k):
                 all_courses[index]["course num"] for index in same_value_indices
             )
 
-    preferred_courses = [schedule[j].value(course) for j in idxs]
+    preferred_courses = [schedule[j] for j in idxs]
     return preferred_courses
 
 
@@ -128,6 +128,7 @@ class SurveyStudent(BaseAgent):
         responses: np.ndarray,
         total_course_list: list[int],
         course: Course,
+        section: Section,
         course_map,
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
@@ -177,6 +178,7 @@ class SurveyStudent(BaseAgent):
                     preferred_courses,
                     total_courses,
                     course,
+                    section,
                     global_constraints,
                     schedule,
                     sparse,
@@ -191,6 +193,7 @@ class SurveyStudent(BaseAgent):
         preferred_courses: list[ScheduleItem],
         total_courses: int,
         course: Course,
+        section: Section,
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
         sparse: bool = False,
@@ -215,14 +218,14 @@ class SurveyStudent(BaseAgent):
             schedule,
             [undesirable_courses],
             [0],
-            course,
+            [course,section],
             sparse,
         )
         self.preferred_courses_constraint = PreferenceConstraint.from_item_lists(
             schedule,
-            [self.preferred_courses],
+            [[self.preferred_courses]],
             [self.total_courses],
-            course,
+            [course,section],
             sparse,
         )
 
@@ -275,7 +278,7 @@ class QSurvey:
         k,
         sparse=False,
     ):
-        course, _, _, _ = features
+        course, _, _, section = features
 
         students = []
         responses = []
@@ -295,6 +298,7 @@ class QSurvey:
                 preferred,
                 total_num_courses,
                 course,
+                section,
                 [
                     self.course_time_constr(features, schedule, sparse),
                     self.course_sect_constr(features, schedule, sparse),
