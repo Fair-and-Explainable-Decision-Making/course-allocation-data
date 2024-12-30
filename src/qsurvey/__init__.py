@@ -48,7 +48,7 @@ def scale_up_responses(responses, relevant_idxs, n):
     return new_responses
 
 
-def top_preferred(course_map, schedule, course, response, k):
+def top_preferred(course_map, schedule, course, response, pref_thresh):
     all_courses = list(course_map.values())
     order = np.argsort(response)[::-1]
 
@@ -56,7 +56,7 @@ def top_preferred(course_map, schedule, course, response, k):
     idxs = []
 
     for idx in order:
-        if len(top_course_nums) >= k or response[idx] == 1:
+        if len(top_course_nums) >= pref_thresh or response[idx] == 1:
             break
 
         if all_courses[idx]["course num"] not in top_course_nums:
@@ -83,7 +83,7 @@ def synthesize_students(
     max_courses,
     relevant_idxs,
     rng,
-    k,
+    pref_thresh,
 ):
     num_students = len(surveys)
     total_course_list = [int(survey.data().sum()) for survey in surveys]
@@ -115,7 +115,7 @@ def synthesize_students(
         ],
         schedule,
         rng=rng,
-        k=k,
+        pref_thresh=pref_thresh,
         max_total_courses=max_courses,
     )
 
@@ -135,7 +135,7 @@ class SurveyStudent(BaseAgent):
         global_constraints: list[LinearConstraint],
         schedule: list[ScheduleItem],
         rng: np.random.Generator,
-        k: int,
+        pref_thresh: int,
         max_total_courses: int = sys.maxsize,
         sparse: bool = False,
         memoize: bool = True,
@@ -170,7 +170,7 @@ class SurveyStudent(BaseAgent):
         students = []
         for i in range(responses.shape[0]):
             preferred_courses = top_preferred(
-                course_map, schedule, course, responses[i], k
+                course_map, schedule, course, responses[i], pref_thresh
             )
             total_courses = int(
                 min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
@@ -293,7 +293,7 @@ class QSurvey:
         all_courses,
         features,
         schedule,
-        k,
+        pref_thresh,
         sparse=False,
     ):
         course, _, _, section = features
@@ -303,7 +303,7 @@ class QSurvey:
         statuses = []
         for _, row in self.df.iterrows():
             response = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
-            preferred = top_preferred(course_map, schedule, course, response, k)
+            preferred = top_preferred(course_map, schedule, course, response, pref_thresh)
             total_num_courses = row["3"]
 
             if np.isnan(total_num_courses):
