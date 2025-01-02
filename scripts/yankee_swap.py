@@ -4,8 +4,9 @@ from fair.metrics import utilitarian_welfare
 import qsurvey
 
 SPARSE = False
+pref_thresh = 5
 
-survey_file = "resources/survey_data.csv"
+survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -19,7 +20,7 @@ features = mp.features(course_map)
 course, slot, weekday, _ = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
-    course_map, all_courses, features, schedule, SPARSE
+    course_map, all_courses, features, schedule, pref_thresh, SPARSE
 )
 student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 student_resp_map = {students[i]: response for i, response in enumerate(responses)}
