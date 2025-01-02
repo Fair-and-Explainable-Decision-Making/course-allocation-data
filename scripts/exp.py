@@ -13,7 +13,7 @@ NUM_SUB_KERNELS = 3
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-seed=0
+seed = 0
 RNG = np.random.default_rng(seed)
 pref_thresh = 5
 
@@ -178,22 +178,25 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
     )
     status_synth_students_map[status] = synth_students
     status_data_map[status] = data
-    synth_students = [LegacyStudent(student, student.preferred_courses, course) for student in synth_students]
-    data1=data[-len(synth_students):]
-    data_max=[max(val) for val in data1]
+    synth_students = [
+        LegacyStudent(student, student.preferred_courses, course)
+        for student in synth_students
+    ]
+    data1 = data[-len(synth_students) :]
+    data_max = [max(val) for val in data1]
     # print(f"max preference: {max(data_max)}")
     for i, response in enumerate(data1):
         student_resp_map[synth_students[i]] = [int(i) for i in response]
-    students=[*students, *synth_students]
+    students = [*students, *synth_students]
     for student in synth_students:
         student_status_map[student] = status
-    print('synthetic student preferred courses',student.student.preferred_courses)
+    print("synthetic student preferred courses", student.student.preferred_courses)
 
 
 # proj_data_map, sign_data = project_data(status_data_map, course_map)
 
 
-X_YS,_,_ = general_yankee_swap_E(students, schedule)
+X_YS, _, _ = general_yankee_swap_E(students, schedule)
 X_RR = round_robin(students, schedule)
 X_SD = serial_dictatorship(students, schedule)
 
