@@ -1,8 +1,14 @@
 import numpy as np
+import pandas as pd
+import os 
+import time
+
 from fair.stats.survey import Corpus, SingleTopicSurvey
 from fair.agent import LegacyStudent
 from fair.allocation import general_yankee_swap_E, round_robin, serial_dictatorship
-from fair.metrics import utilitarian_welfare, nash_welfare
+from fair.envy import precompute_bundles_valuations, EF_violations, EF1_violations, EFX_violations
+from fair.metrics import utilitarian_welfare, nash_welfare, leximin, PMMS_violations
+from fair.optimization import StudentAllocationProgram
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 
@@ -50,7 +56,8 @@ NUM_STUDENTS_PER_STATUS = {
     6: 148,
 }
 
-survey_file = "resources/survey_data.csv"
+# survey_file = "resources/survey_data.csv"
+survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -208,16 +215,85 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
     students = [*students, *synth_students]
     for student in synth_students:
         student_status_map[student] = status
-    print("synthetic student preferred courses", student.student.preferred_courses)
-    print(status, len(synth_students))
 
 
 # proj_data_map, sign_data = project_data(status_data_map, course_map)
 
+NUM_STUDENTS = len(students)
 
-X_YS, _, _ = general_yankee_swap_E(students, schedule)
+start = time.time()
+orig_students = [student.student for student in students]
+program = StudentAllocationProgram(orig_students, schedule).compile()
+opt_alloc = program.formulateUSW().solve()
+X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
+time_ILP = time.time() - start
+
+start = time.time()
 X_RR = round_robin(students, schedule)
+time_RR = time.time() - start
+
+start = time.time()
 X_SD = serial_dictatorship(students, schedule)
+time_SD = time.time() - start
+
+start = time.time()
+# X_YS, _, _ = general_yankee_swap_E(students, schedule)
+X_YS=X_RR
+time_YS = time.time() - start
+
+runtimes = [time_ILP, time_RR, time_SD, time_YS]
+Xs = [X_ILP, X_RR, X_SD, X_YS]
+algs = ["ILP", "RR", "SD", "YS"]
+
+csv_file_path = 'experiments/experiment_results.csv'
+def add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule):
+
+    seats= NUM_STUDENTS*utilitarian_welfare(X, students, schedule)
+    nash, zeros = nash_welfare(X,students, schedule)
+    min_val = min(leximin(X, students, schedule))
+    PMMS = PMMS_violations(X, students, schedule)
+    bundles, valuations = precompute_bundles_valuations(X, students, schedule)
+    EF = EF_violations(X,students, schedule,valuations)
+    EF1 = EF1_violations(X, students, schedule, bundles, valuations)
+    EFX = EFX_violations(X, students, schedule, bundles, valuations)
+
+    file_exists = os.path.isfile(csv_file_path)
+    
+    new_row = pd.DataFrame({
+        'NUM_SUB_KERNELS': [NUM_SUB_KERNELS],
+        'SAMPLE_PER_STUDENT': [SAMPLE_PER_STUDENT],
+        'NUM_STUDENTS': [NUM_STUDENTS],
+        'seed': [seed],
+        'pref_thresh': [pref_thresh],
+        'alg': [alg],
+        'seats': [seats],
+        'nash': [nash],
+        'zeros': [zeros],
+        'min_val': [min_val],
+        'PMMS_violations': [PMMS[0]],
+        'PMMS_agents': [PMMS[1]],
+        'EF_violations': [EF[0]],
+        'EF_agents': [EF[1]],
+        'EF1_violations': [EF1[0]],
+        'EF1_agents': [EF1[1]],
+        'EFX_violations': [EFX[0]],
+        'EFX_agents': [EFX[1]],
+        'runtime': [runtime]
+    })
+    
+    if file_exists:
+        new_row.to_csv(csv_file_path, mode='a', header=False, index=False)
+    else:
+        new_row.to_csv(csv_file_path, mode='w', header=True, index=False)
+
+print(students[0].preferred_courses)
+
+for i,alg in enumerate(algs):
+    runtime = runtimes[i]
+    X= Xs[i]
+    add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule)
+
+
 
 print("YS utilitarian welfare: ", utilitarian_welfare(X_YS, students, schedule))
 print("YS Nash welfare: ", nash_welfare(X_YS, students, schedule))
