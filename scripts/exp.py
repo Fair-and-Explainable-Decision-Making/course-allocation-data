@@ -6,8 +6,8 @@ import time
 from fair.stats.survey import Corpus, SingleTopicSurvey
 from fair.agent import LegacyStudent
 from fair.allocation import general_yankee_swap_E, round_robin, serial_dictatorship
-from fair.envy import precompute_bundles_valuations, EF_violations, EF1_violations, EFX_violations
-from fair.metrics import utilitarian_welfare, nash_welfare, leximin, PMMS_violations
+from fair.envy import EF_violations, EF1_violations, EFX_violations
+from fair.metrics import utilitarian_welfare, nash_welfare, leximin, precompute_bundles_valuations, PMMS_violations
 from fair.optimization import StudentAllocationProgram
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
@@ -56,8 +56,8 @@ NUM_STUDENTS_PER_STATUS = {
     6: 148,
 }
 
-# survey_file = "resources/survey_data.csv"
-survey_file = "resources/random_survey.csv"
+survey_file = "resources/survey_data.csv"
+# survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -79,6 +79,12 @@ course_cap_map = {
     crs: crs_sec_cap_map[course_map[crs]["course num"]][int(course_map[crs]["section"])]
     for crs in all_courses
 }
+n_responses_per_status = np.zeros(6)
+for student in students:
+    student_status = int(student_status_map[student])
+    n_responses_per_status[student_status - 1] += 1
+print("n_responses_per_status", n_responses_per_status)
+
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
@@ -120,65 +126,8 @@ for status in range(1, 7):
     status_surveys_map[status] = status_surveys
 
 
-def project_data(status_data_map, course_map):
-    pca = PCA(n_components=2)
-    data_matrix = np.vstack(
-        [status_data_map[status] for status in qsurvey.STATUS_LABEL_MAP.keys()]
-    )
-    # sign posts
-    import re
-
-    signs = []
-    for i in range(1, 7):
-        signs.append(
-            [
-                1 if re.match(r"^" + str(i) + r"\d{2}.*?", crs["course num"]) else 0
-                for crs in course_map.values()
-            ]
-        )
-
-    data_matrix = np.concatenate([np.vstack(signs), data_matrix])
-    data = pca.fit_transform(data_matrix)
-    sign_data = data[0:7]
-
-    proj_data_map = {}
-    start = 7
-    for status in qsurvey.STATUS_LABEL_MAP.keys():
-        stop = start + len(status_data_map[status])
-        proj_data_map[status] = data[start:stop][:]
-        start = stop
-
-    return proj_data_map, sign_data
 
 
-def project_data_ind(status_data_map):
-    pca = PCA(n_components=2)
-    proj_data_map = {}
-    for status in qsurvey.STATUS_LABEL_MAP.keys():
-        proj_data_map[status] = pca.fit_transform(np.vstack(status_data_map[status]))
-
-    return proj_data_map
-
-
-def plot_data(status, data, num_students):
-    actual_students = data[:num_students, :]
-    synthetic_students = data[num_students:, :]
-    plt.scatter(
-        synthetic_students[:, 0],
-        synthetic_students[:, 1],
-        c=status_color_map[status],
-        alpha=0.25,
-        label="_hidden",
-    )
-    plt.scatter(
-        actual_students[:, 0],
-        actual_students[:, 1],
-        c=status_color_map[status],
-        alpha=0.25,
-        s=150,
-        label=f"{qsurvey.STATUS_LABEL_MAP[status]}",
-    )
-    # plt.tick_params(labelbottom=False, labelleft=False)
 
 
 status_synth_students_map = {}
@@ -217,10 +166,32 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
         student_status_map[student] = status
 
 
-# proj_data_map, sign_data = project_data(status_data_map, course_map)
+
+
 
 NUM_STUDENTS = len(students)
+print("Num students," , NUM_STUDENTS)
 
+students.sort(key=lambda x: student_status_map[x])
+students.reverse()
+
+print("run RR")
+start = time.time()
+X_RR = round_robin(students, schedule)
+time_RR = time.time() - start
+
+print("run SD")
+start = time.time()
+X_SD = serial_dictatorship(students, schedule)
+time_SD = time.time() - start
+
+print("run YS")
+start = time.time()
+X_YS, _, _ = general_yankee_swap_E(students, schedule)
+# X_YS=X_RR
+time_YS = time.time() - start
+
+print("run ILP")
 start = time.time()
 orig_students = [student.student for student in students]
 program = StudentAllocationProgram(orig_students, schedule).compile()
@@ -228,31 +199,23 @@ opt_alloc = program.formulateUSW().solve()
 X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
 time_ILP = time.time() - start
 
-start = time.time()
-X_RR = round_robin(students, schedule)
-time_RR = time.time() - start
-
-start = time.time()
-X_SD = serial_dictatorship(students, schedule)
-time_SD = time.time() - start
-
-start = time.time()
-# X_YS, _, _ = general_yankee_swap_E(students, schedule)
-X_YS=X_RR
-time_YS = time.time() - start
-
 runtimes = [time_ILP, time_RR, time_SD, time_YS]
 Xs = [X_ILP, X_RR, X_SD, X_YS]
 algs = ["ILP", "RR", "SD", "YS"]
+
+print("Finished allocation algorithms. Now compute metrics")
 
 csv_file_path = 'experiments/experiment_results.csv'
 def add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule):
 
     seats= NUM_STUDENTS*utilitarian_welfare(X, students, schedule)
-    nash, zeros = nash_welfare(X,students, schedule)
+    zeros, nash = nash_welfare(X,students, schedule)
     min_val = min(leximin(X, students, schedule))
-    PMMS = PMMS_violations(X, students, schedule)
+    start = time.time()
+
     bundles, valuations = precompute_bundles_valuations(X, students, schedule)
+    PMMS = PMMS_violations(X, students, schedule, bundles, valuations)
+    print("PMMS took: ", time.time() - start)
     EF = EF_violations(X,students, schedule,valuations)
     EF1 = EF1_violations(X, students, schedule, bundles, valuations)
     EFX = EFX_violations(X, students, schedule, bundles, valuations)
@@ -289,6 +252,7 @@ def add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed
 print(students[0].preferred_courses)
 
 for i,alg in enumerate(algs):
+    print("compute for alg:   ", alg)
     runtime = runtimes[i]
     X= Xs[i]
     add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule)
