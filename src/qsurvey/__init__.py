@@ -15,7 +15,7 @@ from fair.constraint import (
 from fair.feature import Course, Section, Slot, Weekday, slots_for_time_range
 from fair.item import ScheduleItem
 from fair.valuation import ConstraintSatifactionValuation
-from scipy.stats import truncnorm
+from scipy.stats import multinomial
 
 from qsurvey import parser
 
@@ -142,7 +142,7 @@ class SurveyStudent(BaseAgent):
     ):
         """Create list of SurveyStudents from response vector and schedule of same dimension
 
-        The total courses assigned to a student are set by fitting a truncated normal distribution
+        The total courses assigned to a student are set by fitting a multinomial distribution
         to the total_course_list provided. The total courses set for each student will range between
         1 and max_total_courses unless max_total_courses is set to sys.maxsize in which case the
         distribution is still based on total_course_list, but it is not truncated on the upper tail.
@@ -165,16 +165,17 @@ class SurveyStudent(BaseAgent):
         total_course_list = [
             max(1, min(max_total_courses, tot)) for tot in total_course_list
         ]
-        params = truncnorm.fit(total_course_list)
+        classes, counts = np.unique(total_course_list, return_counts=True)
+        frequencies = counts / len(total_course_list)
+        dist = multinomial(1, frequencies)
 
         students = []
         for i in range(responses.shape[0]):
             preferred_courses = top_preferred(
                 course_map, schedule, course, responses[i], pref_thresh
             )
-            total_courses = int(
-                min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
-            )
+            total_courses = classes[np.argmax(dist.rvs(random_state=rng)[0])]
+
             students.append(
                 SurveyStudent(
                     preferred_courses,
