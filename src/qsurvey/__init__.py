@@ -296,6 +296,7 @@ class QSurvey:
         all_courses,
         features,
         schedule,
+        status_max_course_map,
         pref_thresh,
         sparse=False,
     ):
@@ -310,13 +311,16 @@ class QSurvey:
                 course_map, schedule, course, response, pref_thresh
             )
             total_num_courses = row["3"]
+            status = row["1"]
 
             if np.isnan(total_num_courses):
                 warnings.warn("total courses not specified; skipping student")
                 continue
 
+            total_num_courses = min(total_num_courses, status_max_course_map[status])
+
             responses.append([row[crs] for crs in all_courses])
-            statuses.append(row["1"])
+            statuses.append(status)
             student = SurveyStudent(
                 preferred,
                 total_num_courses,
