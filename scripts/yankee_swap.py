@@ -1,12 +1,14 @@
 from fair.allocation import general_yankee_swap_E
 from fair.metrics import utilitarian_welfare
+from fair.optimization import StudentAllocationProgram
 
 import qsurvey
+import time
 
 SPARSE = False
-pref_thresh = 5
+pref_thresh = 10
 
-survey_file = "resources/random_survey.csv"
+survey_file = "resources/survey_data.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -32,5 +34,21 @@ students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-X = general_yankee_swap_E(students, schedule)
-print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))
+students = students[:600]
+print(len(students))
+
+start = time.time()
+orig_students = [student.student for student in students]
+print("1")
+program = StudentAllocationProgram(orig_students, schedule).compile()
+print("2")
+opt_alloc = program.formulateUSW().solve()
+print("3")
+X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
+
+print(time.time() - start)
+
+print("ILP utilitarian welfare: ", utilitarian_welfare(X_ILP, students, schedule))
+
+# X = general_yankee_swap_E(students, schedule)
+# print("YS utilitarian welfare: ", utilitarian_welfare(X[0], students, schedule))

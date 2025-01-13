@@ -173,7 +173,7 @@ class SurveyStudent(BaseAgent):
                 course_map, schedule, course, responses[i], pref_thresh
             )
             total_courses = int(
-                min(max_total_courses, truncnorm.rvs(*params, random_state=rng))
+                min(max_total_courses, max(1,truncnorm.rvs(*params, random_state=rng)))
             )
             students.append(
                 SurveyStudent(
@@ -213,6 +213,9 @@ class SurveyStudent(BaseAgent):
         """
         self.preferred_courses = preferred_courses
         self.total_courses = total_courses
+        self.quantities = [total_courses]
+        self.preferred_topics = [preferred_courses]
+
 
         all_courses = [(item.value(course), item.value(section)) for item in schedule]
         self.all_courses_constraint = PreferenceConstraint.from_item_lists(

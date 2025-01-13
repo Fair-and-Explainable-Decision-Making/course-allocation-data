@@ -47,14 +47,6 @@ status_crs_prefix_map = {
     6: ["5", "6"],
 }
 
-NUM_STUDENTS_PER_STATUS = {
-    1: 239,
-    2: 327,
-    3: 408,
-    4: 573,
-    5: 613,
-    6: 148,
-}
 
 survey_file = "resources/survey_data.csv"
 # survey_file = "resources/random_survey.csv"
@@ -80,99 +72,13 @@ course_cap_map = {
     crs: crs_sec_cap_map[course_map[crs]["course num"]][int(course_map[crs]["section"])]
     for crs in all_courses
 }
-n_responses_per_status = np.zeros(6)
-for student in students:
-    student_status = int(student_status_map[student])
-    n_responses_per_status[student_status - 1] += 1
-print("n_responses_per_status", n_responses_per_status)
 
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-student_type_map = {student: "real" for student in students}
-
-n_responses_per_status = np.zeros(6)
-for student in students:
-    student_status = int(student_status_map[student])
-    n_responses_per_status[student_status - 1] += 1
-
-NUM_RAND_SAMP = {
-    i + 1: NUM_STUDENTS_PER_STATUS[i + 1] - int(n_responses_per_status[i])
-    for i in range(6)
-}
-
-status_mbeta_map = {}
-status_surveys_map = {}
-status_students_map = {}
-for status in range(1, 7):
-    relevant_idxs = qsurvey.get_status_relevant(
-        status, all_courses, course_map, status_crs_prefix_map
-    )
-    status_students = [
-        student for student in students if student_status_map[student] == status
-    ]
-    status_students_map[status] = status_students
-    status_surveys = [
-        SingleTopicSurvey(
-            [sch for i, sch in enumerate(schedule) if i in relevant_idxs],
-            student_resp_map[student][relevant_idxs],
-            student.student.total_courses,
-            1,
-            8,
-        )
-        for student in status_students
-    ]
-    status_corpus = Corpus(status_surveys, RNG)
-    status_mbeta = status_corpus.kde_distribution(SAMPLE_PER_STUDENT, NUM_SUB_KERNELS)
-    status_mbeta_map[status] = status_mbeta
-    status_surveys_map[status] = status_surveys
-
-
-
-
-
-
-status_synth_students_map = {}
-status_data_map = {}
-all_synth_students = []
-for status in qsurvey.STATUS_LABEL_MAP.keys():
-    synth_students, data = qsurvey.synthesize_students(
-        NUM_RAND_SAMP[status],
-        course,
-        section,
-        features,
-        schedule,
-        qs,
-        status_surveys_map[status],
-        status_mbeta_map[status],
-        course_map,
-        status_max_course_map[status],
-        qsurvey.get_status_relevant(
-            status, all_courses, course_map, status_crs_prefix_map
-        ),
-        rng=RNG,
-        pref_thresh=pref_thresh,
-    )
-    status_synth_students_map[status] = synth_students
-    status_data_map[status] = data
-    synth_students = [
-        LegacyStudent(student, student.preferred_courses, course)
-        for student in synth_students
-    ]
-    data1 = data[-len(synth_students) :]
-    data_max = [max(val) for val in data1]
-    # print(f"max preference: {max(data_max)}")
-    for i, response in enumerate(data1):
-        student_resp_map[synth_students[i]] = [int(i) for i in response]
-    students = [*students, *synth_students]
-    student_type_map = {student: "synth" for student in synth_students}
-    for student in synth_students:
-        student_status_map[student] = status
-
-
-
-
+for sched in schedule:
+    sched.capacity = round(sched.capacity*0.3033)
 
 NUM_STUDENTS = len(students)
 print("Num students," , NUM_STUDENTS)
@@ -180,20 +86,19 @@ print("Num students," , NUM_STUDENTS)
 students.sort(key=lambda x: student_status_map[x])
 students.reverse()
 
-# print("run RR")
-# start = time.time()
-# X_RR = round_robin(students, schedule)
-# time_RR = time.time() - start
+print("run RR")
+start = time.time()
+X_RR = round_robin(students, schedule)
+time_RR = time.time() - start
 
-# print("run SD")
-# start = time.time()
-# X_SD = serial_dictatorship(students, schedule)
-# time_SD = time.time() - start
+print("run SD")
+start = time.time()
+X_SD = serial_dictatorship(students, schedule)
+time_SD = time.time() - start
 
 print("run YS")
 start = time.time()
 X_YS, _, _ = general_yankee_swap_E(students, schedule)
-# X_YS=X_RR
 time_YS = time.time() - start
 
 print("run ILP")
@@ -210,7 +115,7 @@ algs = ["ILP", "RR", "SD", "YS"]
 
 print("Finished allocation algorithms. Now compute metrics")
 
-csv_file_path = 'experiments/experiment_results.csv'
+csv_file_path = 'experiments/experiment_reduced_results.csv'
 def add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule):
 
     seats= NUM_STUDENTS*utilitarian_welfare(X, students, schedule)
