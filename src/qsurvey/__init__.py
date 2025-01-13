@@ -174,7 +174,7 @@ class SurveyStudent(BaseAgent):
             preferred_courses = top_preferred(
                 course_map, schedule, course, responses[i], pref_thresh
             )
-            total_courses = classes[np.argmax(dist.rvs()[0])]
+            total_courses = classes[np.argmax(dist.rvs(random_state=rng)[0])]
 
             students.append(
                 SurveyStudent(
