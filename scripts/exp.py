@@ -165,8 +165,8 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
     # print(f"max preference: {max(data_max)}")
     for i, response in enumerate(data1):
         student_resp_map[synth_students[i]] = [int(i) for i in response]
+        student_type_map[synth_students[i]] = "synth"
     students = [*students, *synth_students]
-    student_type_map = {student: "synth" for student in synth_students}
     for student in synth_students:
         student_status_map[student] = status
 
