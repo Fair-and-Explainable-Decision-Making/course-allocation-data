@@ -6,12 +6,12 @@ from sklearn.decomposition import PCA
 import qsurvey
 
 NUM_RAND_SAMP = 20
-NUM_SUB_KERNELS = 3
+NUM_SUB_KERNELS = 1
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-RNG = np.random.default_rng(None)
-pref_thresh = 5
+RNG = np.random.default_rng(1)
+pref_thresh = 10
 
 status_color_map = {
     1: "lightsteelblue",
@@ -38,7 +38,7 @@ status_crs_prefix_map = {
     6: ["5", "6"],
 }
 
-survey_file = "resources/random_survey.csv"
+survey_file = "resources/survey_data.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
