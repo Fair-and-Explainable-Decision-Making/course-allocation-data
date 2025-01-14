@@ -8,6 +8,15 @@ import time
 SPARSE = False
 pref_thresh = 10
 
+status_max_course_map = {
+    1: 6,
+    2: 6,
+    3: 6,
+    4: 6,
+    5: 4,
+    6: 4,
+}
+
 survey_file = "resources/survey_data.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
@@ -22,7 +31,13 @@ features = mp.features(course_map)
 course, slot, weekday, _ = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
-    course_map, all_courses, features, schedule, pref_thresh, SPARSE
+    course_map,
+    all_courses,
+    features,
+    schedule,
+    status_max_course_map,
+    pref_thresh,
+    SPARSE,
 )
 student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 student_resp_map = {students[i]: response for i, response in enumerate(responses)}

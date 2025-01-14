@@ -1,13 +1,19 @@
 import numpy as np
 import pandas as pd
-import os 
+import os
 import time
 
 from fair.stats.survey import Corpus, SingleTopicSurvey
 from fair.agent import LegacyStudent
 from fair.allocation import general_yankee_swap_E, round_robin, serial_dictatorship
 from fair.envy import EF_violations, EF1_violations, EFX_violations
-from fair.metrics import utilitarian_welfare, nash_welfare, leximin, precompute_bundles_valuations, PMMS_violations
+from fair.metrics import (
+    utilitarian_welfare,
+    nash_welfare,
+    leximin,
+    precompute_bundles_valuations,
+    PMMS_violations,
+)
 from fair.optimization import StudentAllocationProgram
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
@@ -78,10 +84,10 @@ students = [
 ]
 
 for sched in schedule:
-    sched.capacity = round(sched.capacity*0.3033)
+    sched.capacity = round(sched.capacity * 0.3033)
 
 NUM_STUDENTS = len(students)
-print("Num students," , NUM_STUDENTS)
+print("Num students,", NUM_STUDENTS)
 
 students.sort(key=lambda x: student_status_map[x])
 students.reverse()
@@ -115,58 +121,84 @@ algs = ["ILP", "RR", "SD", "YS"]
 
 print("Finished allocation algorithms. Now compute metrics")
 
-csv_file_path = 'experiments/experiment_reduced_results.csv'
-def add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule):
+csv_file_path = "experiments/experiment_reduced_results.csv"
 
-    seats= NUM_STUDENTS*utilitarian_welfare(X, students, schedule)
-    zeros, nash = nash_welfare(X,students, schedule)
+
+def add_experiment_result(
+    NUM_SUB_KERNELS,
+    SAMPLE_PER_STUDENT,
+    NUM_STUDENTS,
+    seed,
+    pref_thresh,
+    alg,
+    runtime,
+    X,
+    students,
+    schedule,
+):
+
+    seats = NUM_STUDENTS * utilitarian_welfare(X, students, schedule)
+    zeros, nash = nash_welfare(X, students, schedule)
     min_val = min(leximin(X, students, schedule))
     start = time.time()
 
     bundles, valuations = precompute_bundles_valuations(X, students, schedule)
     PMMS = PMMS_violations(X, students, schedule, bundles, valuations)
     print("PMMS took: ", time.time() - start)
-    EF = EF_violations(X,students, schedule,valuations)
+    EF = EF_violations(X, students, schedule, valuations)
     EF1 = EF1_violations(X, students, schedule, bundles, valuations)
     EFX = EFX_violations(X, students, schedule, bundles, valuations)
 
     file_exists = os.path.isfile(csv_file_path)
-    
-    new_row = pd.DataFrame({
-        'NUM_SUB_KERNELS': [NUM_SUB_KERNELS],
-        'SAMPLE_PER_STUDENT': [SAMPLE_PER_STUDENT],
-        'NUM_STUDENTS': [NUM_STUDENTS],
-        'seed': [seed],
-        'pref_thresh': [pref_thresh],
-        'alg': [alg],
-        'seats': [seats],
-        'nash': [nash],
-        'zeros': [zeros],
-        'min_val': [min_val],
-        'PMMS_violations': [PMMS[0]],
-        'PMMS_agents': [PMMS[1]],
-        'EF_violations': [EF[0]],
-        'EF_agents': [EF[1]],
-        'EF1_violations': [EF1[0]],
-        'EF1_agents': [EF1[1]],
-        'EFX_violations': [EFX[0]],
-        'EFX_agents': [EFX[1]],
-        'runtime': [runtime]
-    })
-    
+
+    new_row = pd.DataFrame(
+        {
+            "NUM_SUB_KERNELS": [NUM_SUB_KERNELS],
+            "SAMPLE_PER_STUDENT": [SAMPLE_PER_STUDENT],
+            "NUM_STUDENTS": [NUM_STUDENTS],
+            "seed": [seed],
+            "pref_thresh": [pref_thresh],
+            "alg": [alg],
+            "seats": [seats],
+            "nash": [nash],
+            "zeros": [zeros],
+            "min_val": [min_val],
+            "PMMS_violations": [PMMS[0]],
+            "PMMS_agents": [PMMS[1]],
+            "EF_violations": [EF[0]],
+            "EF_agents": [EF[1]],
+            "EF1_violations": [EF1[0]],
+            "EF1_agents": [EF1[1]],
+            "EFX_violations": [EFX[0]],
+            "EFX_agents": [EFX[1]],
+            "runtime": [runtime],
+        }
+    )
+
     if file_exists:
-        new_row.to_csv(csv_file_path, mode='a', header=False, index=False)
+        new_row.to_csv(csv_file_path, mode="a", header=False, index=False)
     else:
-        new_row.to_csv(csv_file_path, mode='w', header=True, index=False)
+        new_row.to_csv(csv_file_path, mode="w", header=True, index=False)
+
 
 print(students[0].preferred_courses)
 
-for i,alg in enumerate(algs):
+for i, alg in enumerate(algs):
     print("compute for alg:   ", alg)
     runtime = runtimes[i]
-    X= Xs[i]
-    add_experiment_result(NUM_SUB_KERNELS,SAMPLE_PER_STUDENT, NUM_STUDENTS, seed, pref_thresh, alg, runtime, X, students, schedule)
-
+    X = Xs[i]
+    add_experiment_result(
+        NUM_SUB_KERNELS,
+        SAMPLE_PER_STUDENT,
+        NUM_STUDENTS,
+        seed,
+        pref_thresh,
+        alg,
+        runtime,
+        X,
+        students,
+        schedule,
+    )
 
 
 print("YS utilitarian welfare: ", utilitarian_welfare(X_YS, students, schedule))

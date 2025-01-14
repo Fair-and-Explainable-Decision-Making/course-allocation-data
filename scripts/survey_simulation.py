@@ -52,7 +52,13 @@ features = mp.features(course_map)
 course, slot, weekday, section = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
-    course_map, all_courses, features, schedule, pref_thresh, SPARSE
+    course_map,
+    all_courses,
+    features,
+    schedule,
+    status_max_course_map,
+    pref_thresh,
+    SPARSE,
 )
 student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 student_resp_map = {students[i]: response for i, response in enumerate(responses)}
