@@ -84,9 +84,9 @@ def synthesize_students(
     relevant_idxs,
     rng,
     pref_thresh,
+    total_course_list,
 ):
     num_students = len(surveys)
-    total_course_list = [int(survey.data().sum()) for survey in surveys]
     data = np.vstack([survey.data() for survey in surveys])
     data = scale_up_responses(data, relevant_idxs, len(course_map))
     # denormalize data

@@ -177,6 +177,9 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
         ),
         rng=RNG,
         pref_thresh=pref_thresh,
+        total_course_list=[
+            student.student.total_courses for student in status_students_map[status]
+        ],
     )
     status_synth_students_map[status] = synth_students
     status_data_map[status] = data
