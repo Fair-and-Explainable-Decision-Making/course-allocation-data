@@ -24,7 +24,7 @@ NUM_SUB_KERNELS = 1
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-seed = 0
+seed = 1
 RNG = np.random.default_rng(seed)
 pref_thresh = 10
 
@@ -63,7 +63,6 @@ NUM_STUDENTS_PER_STATUS = {
 }
 
 survey_file = "resources/survey_data.csv"
-# survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -92,15 +91,47 @@ course_cap_map = {
     crs: crs_sec_cap_map[course_map[crs]["course num"]][int(course_map[crs]["section"])]
     for crs in all_courses
 }
-n_responses_per_status = np.zeros(6)
-for student in students:
-    student_status = int(student_status_map[student])
-    n_responses_per_status[student_status - 1] += 1
-print("n_responses_per_status", n_responses_per_status)
 
 students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
+
+# Save real students preferences
+
+for status in range(1, 7):
+    student_per_status = [
+        student for student in students if student_status_map[student] == status
+    ]
+
+    real_student_preferred_courses = [
+        [
+            item.values[0] + "-" + item.values[3]
+            for item in student.student.preferred_courses
+        ]
+        for student in student_per_status
+    ]
+
+    real_courses = [
+        course for sublist in real_student_preferred_courses for course in sublist
+    ]
+
+    status_all_courses = sorted(set(real_courses))
+    real_course_counts = {course: real_courses.count(course) for course in status_all_courses}
+    real_student_count = len(real_student_preferred_courses)
+    real_percentages = [
+        real_course_counts[course] / real_student_count * 100 for course in status_all_courses
+    ]
+    real_student_counts = [len(pref) for pref in real_student_preferred_courses]
+
+    students_total_courses = [student.student.total_courses for student in student_per_status]
+
+    np.savez(
+        f"experiments/preferences_real_{seed}_{status}",
+        status_all_courses=status_all_courses,
+        real_percentages=real_percentages,
+        real_student_counts=real_student_counts,
+        students_total_courses=students_total_courses,
+    )
 
 student_type_map = {student: "real" for student in students}
 
@@ -161,6 +192,9 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
         ),
         rng=RNG,
         pref_thresh=pref_thresh,
+        total_course_list=[
+            student.student.total_courses for student in status_students_map[status]
+        ],
     )
     status_synth_students_map[status] = synth_students
     status_data_map[status] = data
@@ -178,6 +212,42 @@ for status in qsurvey.STATUS_LABEL_MAP.keys():
     for student in synth_students:
         student_status_map[student] = status
 
+# Save synthetic students preferences
+for status in range(1, 7):
+    student_per_status = [
+        student for student in students if student_status_map[student] == status and student_type_map[student]=="synth"
+    ]
+
+    synth_student_preferred_courses = [
+        [
+            item.values[0] + "-" + item.values[3]
+            for item in student.student.preferred_courses
+        ]
+        for student in student_per_status
+    ]
+
+    synth_courses = [
+        course for sublist in synth_student_preferred_courses for course in sublist
+    ]
+
+    status_all_courses = sorted(set(synth_courses))
+    synth_course_counts = {course: synth_courses.count(course) for course in status_all_courses}
+    synth_student_count = len(synth_student_preferred_courses)
+    synth_percentages = [
+        synth_course_counts[course] / synth_student_count * 100 for course in status_all_courses
+    ]
+    synth_student_counts = [len(pref) for pref in synth_student_preferred_courses]
+
+    students_total_courses = [student.student.total_courses for student in student_per_status]
+
+    np.savez(
+        f"experiments/preferences_synth_{seed}_{status}",
+        status_all_courses=status_all_courses,
+        synth_percentages=synth_percentages,
+        synth_student_counts=synth_student_counts,
+        students_total_courses=students_total_courses,
+    )
+
 
 NUM_STUDENTS = len(students)
 print("Num students,", NUM_STUDENTS)
@@ -185,35 +255,26 @@ print("Num students,", NUM_STUDENTS)
 students.sort(key=lambda x: student_status_map[x])
 students.reverse()
 
-# print("run RR")
-# start = time.time()
-# X_RR = round_robin(students, schedule)
-# time_RR = time.time() - start
+print("run RR")
+start = time.time()
+X_RR = round_robin(students, schedule)
+time_RR = time.time() - start
 
-# print("run SD")
-# start = time.time()
-# X_SD = serial_dictatorship(students, schedule)
-# time_SD = time.time() - start
+print("run SD")
+start = time.time()
+X_SD = serial_dictatorship(students, schedule)
+time_SD = time.time() - start
 
 print("run YS")
 start = time.time()
 X_YS, _, _ = general_yankee_swap_E(students, schedule)
-# X_YS=X_RR
 time_YS = time.time() - start
 
-print("run ILP")
-start = time.time()
-orig_students = [student.student for student in students]
-program = StudentAllocationProgram(orig_students, schedule).compile()
-opt_alloc = program.formulateUSW().solve()
-X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
-time_ILP = time.time() - start
+runtimes = [time_RR, time_SD, time_YS]
+Xs = [X_RR, X_SD, X_YS]
+algs = ["RR", "SD", "YS"]
 
-runtimes = [time_ILP, time_RR, time_SD, time_YS]
-Xs = [X_ILP, X_RR, X_SD, X_YS]
-algs = ["ILP", "RR", "SD", "YS"]
-
-print("Finished allocation algorithms. Now compute metrics")
+print("Finished allocation algorithms. Now computing metrics")
 
 csv_file_path = "experiments/experiment_results.csv"
 
@@ -234,11 +295,11 @@ def add_experiment_result(
     seats = NUM_STUDENTS * utilitarian_welfare(X, students, schedule)
     zeros, nash = nash_welfare(X, students, schedule)
     min_val = min(leximin(X, students, schedule))
-    start = time.time()
 
+    start = time.time()
     bundles, valuations = precompute_bundles_valuations(X, students, schedule)
+    print("Precomputing bundles and valuations took: ", time.time() - start)
     PMMS = PMMS_violations(X, students, schedule, bundles, valuations)
-    print("PMMS took: ", time.time() - start)
     EF = EF_violations(X, students, schedule, valuations)
     EF1 = EF1_violations(X, students, schedule, bundles, valuations)
     EFX = EFX_violations(X, students, schedule, bundles, valuations)
@@ -274,11 +335,8 @@ def add_experiment_result(
     else:
         new_row.to_csv(csv_file_path, mode="w", header=True, index=False)
 
-
-print(students[0].preferred_courses)
-
 for i, alg in enumerate(algs):
-    print("compute for alg:   ", alg)
+    print("computing for:   ", alg)
     runtime = runtimes[i]
     X = Xs[i]
     add_experiment_result(
