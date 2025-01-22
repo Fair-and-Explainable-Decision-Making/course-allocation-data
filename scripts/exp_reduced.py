@@ -3,8 +3,6 @@ import pandas as pd
 import os
 import time
 
-from fair.stats.survey import Corpus, SingleTopicSurvey
-from fair.agent import LegacyStudent
 from fair.allocation import general_yankee_swap_E, round_robin, serial_dictatorship
 from fair.envy import EF_violations, EF1_violations, EFX_violations
 from fair.metrics import (
@@ -18,14 +16,14 @@ from fair.optimization import StudentAllocationProgram
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 
+import random
+
 import qsurvey
 
 NUM_SUB_KERNELS = 1
 SAMPLE_PER_STUDENT = 10
 SPARSE = False
 PLOT = True
-seed = 0
-RNG = np.random.default_rng(seed)
 pref_thresh = 10
 
 status_color_map = {
@@ -53,9 +51,19 @@ status_crs_prefix_map = {
     6: ["5", "6"],
 }
 
+NUM_STUDENTS_PER_STATUS = {
+    1: 239,
+    2: 327,
+    3: 408,
+    4: 573,
+    5: 613,
+    6: 148,
+}
 
+# survey_file = "./course-allocation-data/resources/survey_data.csv"
+# schedule_file = "./course-allocation-data/resources/anonymized_courses.xlsx"
+# mapping_file = "./course-allocation-data/resources/survey_column_mapping.csv"
 survey_file = "resources/survey_data.csv"
-# survey_file = "resources/random_survey.csv"
 schedule_file = "resources/anonymized_courses.xlsx"
 mapping_file = "resources/survey_column_mapping.csv"
 
@@ -69,7 +77,13 @@ features = mp.features(course_map)
 course, slot, weekday, section = features
 schedule = mp.schedule(course_map, crs_sec_cap_map, features)
 students, responses, statuses = qs.students(
-    course_map, all_courses, features, schedule, pref_thresh, SPARSE
+    course_map,
+    all_courses,
+    features,
+    schedule,
+    status_max_course_map,
+    pref_thresh,
+    SPARSE,
 )
 student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 
@@ -79,117 +93,78 @@ course_cap_map = {
     for crs in all_courses
 }
 
-students = [
+all_students = [
     student for student in students if len(student.student.preferred_courses) > 0
 ]
 
-for sched in schedule:
-    sched.capacity = round(sched.capacity * 0.3033)
+n_responses_per_status = np.zeros(6)
+for student in all_students:
+    student_status = int(student_status_map[student])
+    n_responses_per_status[student_status - 1] += 1
 
-NUM_STUDENTS = len(students)
-print("Num students,", NUM_STUDENTS)
+rates = [n_responses_per_status[i]/NUM_STUDENTS_PER_STATUS[i+1] for i in range(6)]
+rate = min(rates)
 
-students.sort(key=lambda x: student_status_map[x])
-students.reverse()
+n_per_status= [round(NUM_STUDENTS_PER_STATUS[i+1]*min(rates)) for i in range(6)]
 
-print("run RR")
-start = time.time()
-X_RR = round_robin(students, schedule)
-time_RR = time.time() - start
+for sche in schedule:
+    sche.capacity=round(sche.capacity * rate)
 
-print("run SD")
-start = time.time()
-X_SD = serial_dictatorship(students, schedule)
-time_SD = time.time() - start
+for seed in range(0,1):
+    random.seed(seed) 
+    reduced_students=[]
+    for status in range(1,7):
+        students_status= [student for student in all_students if student_status_map[student]==status]
+        selected_students = random.sample(students_status, n_per_status[status-1])
+        reduced_students =  [*reduced_students,*selected_students]
 
-print("run YS")
-start = time.time()
-X_YS, _, _ = general_yankee_swap_E(students, schedule)
-time_YS = time.time() - start
+    students = reduced_students
+    NUM_STUDENTS = len(students)
+    print("Num students,", NUM_STUDENTS)
 
-print("run ILP")
-start = time.time()
-orig_students = [student.student for student in students]
-program = StudentAllocationProgram(orig_students, schedule).compile()
-opt_alloc = program.formulateUSW().solve()
-X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
-time_ILP = time.time() - start
+    students.sort(key=lambda x: student_status_map[x])
+    students.reverse()
 
-runtimes = [time_ILP, time_RR, time_SD, time_YS]
-Xs = [X_ILP, X_RR, X_SD, X_YS]
-algs = ["ILP", "RR", "SD", "YS"]
-
-print("Finished allocation algorithms. Now compute metrics")
-
-csv_file_path = "experiments/experiment_reduced_results.csv"
-
-
-def add_experiment_result(
-    NUM_SUB_KERNELS,
-    SAMPLE_PER_STUDENT,
-    NUM_STUDENTS,
-    seed,
-    pref_thresh,
-    alg,
-    runtime,
-    X,
-    students,
-    schedule,
-):
-
-    seats = NUM_STUDENTS * utilitarian_welfare(X, students, schedule)
-    zeros, nash = nash_welfare(X, students, schedule)
-    min_val = min(leximin(X, students, schedule))
+    print("run ILP")
     start = time.time()
+    orig_students = [student.student for student in students]
+    program = StudentAllocationProgram(orig_students, schedule).compile()
+    opt_alloc = program.formulateUSW().solve()
+    X_ILP = opt_alloc.reshape(len(students), len(schedule)).transpose()
+    time_ILP = time.time() - start
 
-    bundles, valuations = precompute_bundles_valuations(X, students, schedule)
-    PMMS = PMMS_violations(X, students, schedule, bundles, valuations)
-    print("PMMS took: ", time.time() - start)
-    EF = EF_violations(X, students, schedule, valuations)
-    EF1 = EF1_violations(X, students, schedule, bundles, valuations)
-    EFX = EFX_violations(X, students, schedule, bundles, valuations)
+    print("run RR")
+    start = time.time()
+    X_RR = round_robin(students, schedule)
+    time_RR = time.time() - start
 
-    file_exists = os.path.isfile(csv_file_path)
+    print("run SD")
+    start = time.time()
+    X_SD = serial_dictatorship(students, schedule)
+    time_SD = time.time() - start
 
-    new_row = pd.DataFrame(
-        {
-            "NUM_SUB_KERNELS": [NUM_SUB_KERNELS],
-            "SAMPLE_PER_STUDENT": [SAMPLE_PER_STUDENT],
-            "NUM_STUDENTS": [NUM_STUDENTS],
-            "seed": [seed],
-            "pref_thresh": [pref_thresh],
-            "alg": [alg],
-            "seats": [seats],
-            "nash": [nash],
-            "zeros": [zeros],
-            "min_val": [min_val],
-            "PMMS_violations": [PMMS[0]],
-            "PMMS_agents": [PMMS[1]],
-            "EF_violations": [EF[0]],
-            "EF_agents": [EF[1]],
-            "EF1_violations": [EF1[0]],
-            "EF1_agents": [EF1[1]],
-            "EFX_violations": [EFX[0]],
-            "EFX_agents": [EFX[1]],
-            "runtime": [runtime],
-        }
+    print("run YS")
+    start = time.time()
+    X_YS, _, _ = general_yankee_swap_E(students, schedule)
+    time_YS = time.time() - start
+
+    np.savez(
+        f"leximin_reduced_{seed}.npz",
+        leximin_RR=leximin(X_RR, students, schedule),
+        leximin_SD=leximin(X_SD, students, schedule),
+        leximin_YS=leximin(X_YS, students, schedule),
+        leximin_ILP=leximin(X_ILP, students, schedule),
     )
+    exit()
+    print("Finished allocation algorithms. Now computing metrics")
 
-    if file_exists:
-        new_row.to_csv(csv_file_path, mode="a", header=False, index=False)
-    else:
-        new_row.to_csv(csv_file_path, mode="w", header=True, index=False)
+    csv_file_path = "experiments/reduced_experiment_results.csv"
 
+    runtimes = [time_SD, time_RR, time_ILP,time_YS]
+    Xs = [X_SD, X_RR, X_ILP,X_YS]
+    algs = ["SD", "RR","ILP", "YS"]
 
-print(students[0].preferred_courses)
-
-for i, alg in enumerate(algs):
-    print("compute for alg:   ", alg)
-    runtime = runtimes[i]
-    X = Xs[i]
-    add_experiment_result(
-        NUM_SUB_KERNELS,
-        SAMPLE_PER_STUDENT,
+    def add_experiment_result(
         NUM_STUDENTS,
         seed,
         pref_thresh,
@@ -198,12 +173,60 @@ for i, alg in enumerate(algs):
         X,
         students,
         schedule,
-    )
+    ):
 
+        seats = NUM_STUDENTS * utilitarian_welfare(X, students, schedule)
+        zeros, nash = nash_welfare(X, students, schedule)
+        min_val = min(leximin(X, students, schedule))
 
-print("YS utilitarian welfare: ", utilitarian_welfare(X_YS, students, schedule))
-print("YS Nash welfare: ", nash_welfare(X_YS, students, schedule))
-print("RR utilitarian welfare: ", utilitarian_welfare(X_RR, students, schedule))
-print("RR Nash welfare: ", nash_welfare(X_RR, students, schedule))
-print("SD utilitarian welfare: ", utilitarian_welfare(X_SD, students, schedule))
-print("SD Nash welfare: ", nash_welfare(X_SD, students, schedule))
+        start = time.time()
+        bundles, valuations = precompute_bundles_valuations(X, students, schedule)
+        print("Precomputing bundles and valuations took: ", time.time() - start)
+        PMMS = PMMS_violations(X, students, schedule, bundles, valuations)
+        EF = EF_violations(X, students, schedule, valuations)
+        EF1 = EF1_violations(X, students, schedule, bundles, valuations)
+        EFX = EFX_violations(X, students, schedule, bundles, valuations)
+
+        file_exists = os.path.isfile(csv_file_path)
+
+        new_row = pd.DataFrame(
+            {
+                "NUM_STUDENTS": [NUM_STUDENTS],
+                "pref_thresh": [pref_thresh],
+                "seed": [seed],
+                "alg": [alg],
+                "seats": [seats],
+                "nash": [nash],
+                "zeros": [zeros],
+                "min_val": [min_val],
+                "PMMS_violations": [PMMS[0]],
+                "PMMS_agents": [PMMS[1]],
+                "EF_violations": [EF[0]],
+                "EF_agents": [EF[1]],
+                "EF1_violations": [EF1[0]],
+                "EF1_agents": [EF1[1]],
+                "EFX_violations": [EFX[0]],
+                "EFX_agents": [EFX[1]],
+                "runtime": [runtime],
+            }
+        )
+
+        if file_exists:
+            new_row.to_csv(csv_file_path, mode="a", header=False, index=False)
+        else:
+            new_row.to_csv(csv_file_path, mode="w", header=True, index=False)
+
+    for i, alg in enumerate(algs):
+        print("computing for:   ", alg)
+        runtime = runtimes[i]
+        X = Xs[i]
+        add_experiment_result(
+            NUM_STUDENTS,
+            seed,
+            pref_thresh,
+            alg,
+            runtime,
+            X,
+            students,
+            schedule,
+        )
