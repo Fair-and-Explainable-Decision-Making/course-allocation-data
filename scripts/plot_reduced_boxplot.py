@@ -8,11 +8,11 @@ import seaborn as sns
 from plotly.colors import qualitative
 
 df = pd.read_csv(
-    "/scratch3/paula/course-allocation-data/experiments/experiment_results.csv"
+    "/scratch3/paula/course-allocation-data/experiments/reduced_experiment_results.csv"
 )
 palette = qualitative.Plotly
 # palette = [sns.color_palette("colorblind")[i] for i in [3,0,2]]
-palette = [palette[i] for i in [0, 1, 2]]
+palette = [palette[i] for i in [0, 1, 2, 4]]
 faded_palette = [color + "66" for color in palette]
 
 metrics = [
@@ -34,11 +34,10 @@ metric_names = [
     "Runtime (s)",
 ]
 higher = [1, 1, 0, 0, 0, 0, 0]
-desired_column_order = ["SD", "RR", "YS"]  # Specify the desired column order
+desired_column_order = ["SD", "RR", "YS", "ILP"]  # Specify the desired column order
 
-fig, axs = plt.subplots(2, 4, figsize=(12, 7))
+fig, axs = plt.subplots(2, 4, figsize=(13, 7))
 axs = axs.flatten()
-
 
 for num, metric in enumerate(metrics):
     plt_num = num
@@ -66,7 +65,16 @@ for num, metric in enumerate(metrics):
     for whisker, cap, color in zip(
         box["whiskers"],
         box["caps"],
-        [palette[0], palette[0], palette[1], palette[1], palette[2], palette[2]],
+        [
+            palette[0],
+            palette[0],
+            palette[1],
+            palette[1],
+            palette[2],
+            palette[2],
+            palette[3],
+            palette[3],
+        ],
     ):
         whisker.set_color(color)  # Set whisker color
         whisker.set_linewidth(1.5)  # Make whiskers thicker
@@ -93,7 +101,7 @@ for num, metric in enumerate(metrics):
 
     axs[plt_num].set_xticks([])
     axs[plt_num].set_xlabel(metric_names[num])
-    axs[plt_num].set_xlim([0, 3.8])
+    axs[plt_num].set_xlim([0, 4.8])
     if higher[num] == 1:
         axs[plt_num].text(
             0.3,
@@ -139,6 +147,9 @@ legend_elements = [
     ),
     Patch(facecolor=faded_palette[1], edgecolor=palette[1], label="Round Robin"),
     Patch(facecolor=faded_palette[2], edgecolor=palette[2], label="Yankee Swap"),
+    Patch(
+        facecolor=faded_palette[3], edgecolor=palette[3], label="Integer Linear Program"
+    ),
 ]
 axs[3].legend(
     handles=legend_elements,
@@ -150,6 +161,6 @@ axs[3].legend(
 
 
 plt.tight_layout()
-plt.savefig(f"./experiments/figs/boxplot.jpg", dpi=300)
-plt.savefig(f"./experiments/figs/boxplot.pdf", format="pdf", dpi=300)
+plt.savefig(f"./experiments/figs/reduced_boxplot.jpg", dpi=300)
+plt.savefig(f"./experiments/figs/reduced_boxplot.pdf", format="pdf", dpi=300)
 print(pivot_df)

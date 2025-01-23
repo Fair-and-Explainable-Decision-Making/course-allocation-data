@@ -12,18 +12,24 @@ df = pd.read_csv(
 )
 palette = qualitative.Plotly
 # palette = [sns.color_palette("colorblind")[i] for i in [3,0,2]]
-palette = [palette[i] for i in [0, 1, 2]]
+palette = [palette[i] for i in [0, 1, 2, 4]]
 # faded_palette = [color + '66' for color in palette]
 faded_palette = [color + "66" for color in palette]
 
 lex_dict = {}
-leximin_list = [*range(38), *range(40, 48)]
+leximin_list = range(10)
 for seed in leximin_list:
-    data = np.load(f"experiments/leximin/leximin_{seed}.npz")
+    data = np.load(f"experiments/leximin_reduced/leximin_reduced_{seed}.npz")
     leximin_SD = data["leximin_SD"]
     leximin_RR = data["leximin_RR"]
     leximin_YS = data["leximin_YS"]
-    lex_dict[seed] = {"SD": leximin_SD, "RR": leximin_RR, "YS": leximin_YS}
+    leximin_ILP = data["leximin_ILP"]
+    lex_dict[seed] = {
+        "SD": leximin_SD,
+        "RR": leximin_RR,
+        "YS": leximin_YS,
+        "ILP": leximin_ILP,
+    }
 
 rows = []
 all_sizes = range(7)  # Assuming sizes are 0 to 6
@@ -47,7 +53,7 @@ summary = (
     .reset_index()
 )
 # Define the desired order for the algorithm column
-algorithm_order = ["SD", "RR", "YS"]
+algorithm_order = ["SD", "RR", "YS", "ILP"]
 
 # Convert the 'algorithm' column to a categorical type with the specified order
 summary["algorithm"] = pd.Categorical(
@@ -59,10 +65,10 @@ summary = summary.sort_values(by="algorithm")
 
 
 # Create bar plot
-plt.figure(figsize=(12, 4))
+plt.figure(figsize=(13, 4))
 
 algorithms = summary["algorithm"].unique()
-bar_width = 0.25
+bar_width = 0.2
 
 
 # Iterate over each algorithm to plot bars individually
@@ -85,9 +91,13 @@ for i, algo in enumerate(summary["algorithm"].unique()):
     algo_data = summary[summary["algorithm"] == algo]
     diff = 0
     if algo == "SD":
-        diff = -0.25
+        diff = -0.3
+    elif algo == "ILP":
+        diff = 0.3
     elif algo == "YS":
-        diff = 0.25
+        diff = 0.1
+    else:
+        diff = -0.1
     plt.errorbar(
         x=algo_data["size"] + diff,
         y=algo_data["mean_frequency"],
@@ -103,8 +113,9 @@ for i, algo in enumerate(summary["algorithm"].unique()):
 plt.xlabel("Bundle Size")
 plt.ylabel("Mean Frequency")
 plt.tight_layout()
+plt.ylim([0, 210])
 
 
 # plt.tight_layout()
-plt.savefig(f"./experiments/figs/hist.jpg", dpi=300)
-plt.savefig(f"./experiments/figs/hist.pdf", format="pdf", dpi=300)
+plt.savefig(f"./experiments/figs/reduced_hist.jpg", dpi=300)
+plt.savefig(f"./experiments/figs/reduced_hist.pdf", format="pdf", dpi=300)

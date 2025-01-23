@@ -46,40 +46,46 @@ course_dict = {course: i for i, course in enumerate(all_courses)}
 
 fig, axs = plt.subplots(nrows=6, figsize=(20, 8), sharex=True)
 
-seeds = [*range(28), *range(30,35), *range(40,45)]
+seeds = [*range(28), *range(30, 35), *range(40, 45)]
 for status_inv, ax in enumerate(axs, start=1):
     status = 7 - status_inv
     data_real = np.load(f"./experiments/preferences_real_{status}.npz")
     courses = data_real["status_all_courses"]
     real_percentages = data_real["real_percentages"]
 
-    real_percentages_dict={courses[i]:real_percentages[i] for i in range(len(courses))}
+    real_percentages_dict = {
+        courses[i]: real_percentages[i] for i in range(len(courses))
+    }
     course_order = [course for course in all_courses if course in courses]
-    real_percentages=[real_percentages_dict[course] for course in course_order]
+    real_percentages = [real_percentages_dict[course] for course in course_order]
 
     # print([(i,course) for i,course in enumerate(all_courses) if course not in courses])
-
 
     synthetic_percentages_per_seed = []
     for seed in seeds:
         data_synth = np.load(f"./experiments/preferences_synth_{seed}_{status}.npz")
-        synth_courses= data_synth["status_all_courses"]
-        synth_percentages= data_synth["synth_percentages"]
+        synth_courses = data_synth["status_all_courses"]
+        synth_percentages = data_synth["synth_percentages"]
 
-        synt_percentages_dict={synth_courses[i]:synth_percentages[i] for i in range(len(synth_courses))}
+        synt_percentages_dict = {
+            synth_courses[i]: synth_percentages[i] for i in range(len(synth_courses))
+        }
 
-
-        not_courses = [i for i,course in enumerate(synth_courses) if course not in courses]
+        not_courses = [
+            i for i, course in enumerate(synth_courses) if course not in courses
+        ]
         not_courses.reverse()
 
         for course in not_courses:
             synth_courses = np.delete(synth_courses, course)
             synth_percentages = np.delete(synth_percentages, course)
 
-        synt_percentages_dict={synth_courses[i]:synth_percentages[i] for i in range(len(synth_courses))}
+        synt_percentages_dict = {
+            synth_courses[i]: synth_percentages[i] for i in range(len(synth_courses))
+        }
 
         course_order = [course for course in all_courses if course in synth_courses]
-        synth_percentages=[synt_percentages_dict[course] for course in course_order]
+        synth_percentages = [synt_percentages_dict[course] for course in course_order]
         synthetic_percentages_per_seed.append(synth_percentages)
 
     synthetic_percentages_per_seed = np.asarray(synthetic_percentages_per_seed)
@@ -165,11 +171,11 @@ legend_elements = [
     ),
 ]
 
-axs[0].legend(handles=legend_elements,ncol=2, loc="upper left", fontsize=14)
+axs[0].legend(handles=legend_elements, ncol=2, loc="upper left", fontsize=14)
 axs[-1].set_xticks(range(len(all_courses)))
 axs[-1].set_xticklabels(all_courses, rotation=45, ha="right")
 
 plt.tight_layout()
 plt.subplots_adjust(wspace=0, hspace=0)
 plt.savefig(f"./experiments/pref_freq.jpg", dpi=300)
-plt.savefig(f"./experiments/pref_freq.pdf", format="pdf",dpi=300)
+plt.savefig(f"./experiments/pref_freq.pdf", format="pdf", dpi=300)

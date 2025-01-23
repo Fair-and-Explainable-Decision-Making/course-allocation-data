@@ -59,95 +59,97 @@ NUM_STUDENTS_PER_STATUS = {
     5: 613,
     6: 148,
 }
+for seed in range(100):
+    survey_file = "resources/survey_data.csv"
+    schedule_file = "resources/anonymized_courses.xlsx"
+    mapping_file = "resources/survey_column_mapping.csv"
 
-survey_file = "resources/survey_data.csv"
-schedule_file = "resources/anonymized_courses.xlsx"
-mapping_file = "resources/survey_column_mapping.csv"
-
-mp = qsurvey.QMapper(mapping_file)
-qd = qsurvey.QSchedule(schedule_file)
-crs_sec_cap_map = qd.capacities()
-qs = qsurvey.QSurvey(survey_file, mp, list(crs_sec_cap_map.keys()))
-course_map = mp.mapping(qs.all_courses)
-all_courses = [crs for crs in course_map.keys()]
-features = mp.features(course_map)
-course, slot, weekday, section = features
-schedule = mp.schedule(course_map, crs_sec_cap_map, features)
-students, responses, statuses = qs.students(
-    course_map,
-    all_courses,
-    features,
-    schedule,
-    status_max_course_map,
-    pref_thresh,
-    SPARSE,
-)
-student_status_map = {students[i]: status for i, status in enumerate(statuses)}
-
-student_resp_map = {students[i]: response for i, response in enumerate(responses)}
-course_cap_map = {
-    crs: crs_sec_cap_map[course_map[crs]["course num"]][int(course_map[crs]["section"])]
-    for crs in all_courses
-}
-
-students = [
-    student for student in students if len(student.student.preferred_courses) > 0
-]
-
-# Save real students preferences
-
-for status in range(1, 7):
-    student_per_status = [
-        student for student in students if student_status_map[student] == status
-    ]
-
-    real_student_preferred_courses = [
-        [
-            item.values[0] + "-" + item.values[3]
-            for item in student.student.preferred_courses
-        ]
-        for student in student_per_status
-    ]
-
-    real_courses = [
-        course for sublist in real_student_preferred_courses for course in sublist
-    ]
-
-    status_all_courses = sorted(set(real_courses))
-    real_course_counts = {
-        course: real_courses.count(course) for course in status_all_courses
-    }
-    real_student_count = len(real_student_preferred_courses)
-    real_percentages = [
-        real_course_counts[course] / real_student_count * 100
-        for course in status_all_courses
-    ]
-    real_student_counts = [len(pref) for pref in real_student_preferred_courses]
-
-    students_total_courses = [
-        student.student.total_courses for student in student_per_status
-    ]
-
-    np.savez(
-        f"experiments/preferences_real_{status}",
-        status_all_courses=status_all_courses,
-        real_percentages=real_percentages,
-        real_student_counts=real_student_counts,
-        students_total_courses=students_total_courses,
+    mp = qsurvey.QMapper(mapping_file)
+    qd = qsurvey.QSchedule(schedule_file)
+    crs_sec_cap_map = qd.capacities()
+    qs = qsurvey.QSurvey(survey_file, mp, list(crs_sec_cap_map.keys()))
+    course_map = mp.mapping(qs.all_courses)
+    all_courses = [crs for crs in course_map.keys()]
+    features = mp.features(course_map)
+    course, slot, weekday, section = features
+    schedule = mp.schedule(course_map, crs_sec_cap_map, features)
+    students, responses, statuses = qs.students(
+        course_map,
+        all_courses,
+        features,
+        schedule,
+        status_max_course_map,
+        pref_thresh,
+        SPARSE,
     )
+    student_status_map = {students[i]: status for i, status in enumerate(statuses)}
 
-student_type_map = {student: "real" for student in students}
+    student_resp_map = {students[i]: response for i, response in enumerate(responses)}
+    course_cap_map = {
+        crs: crs_sec_cap_map[course_map[crs]["course num"]][
+            int(course_map[crs]["section"])
+        ]
+        for crs in all_courses
+    }
 
-n_responses_per_status = np.zeros(6)
-for student in students:
-    student_status = int(student_status_map[student])
-    n_responses_per_status[student_status - 1] += 1
+    students = [
+        student for student in students if len(student.student.preferred_courses) > 0
+    ]
 
-NUM_RAND_SAMP = {
-    i + 1: NUM_STUDENTS_PER_STATUS[i + 1] - int(n_responses_per_status[i])
-    for i in range(6)
-}
-for seed in range(10):
+    # Save real students preferences
+
+    for status in range(1, 7):
+        student_per_status = [
+            student for student in students if student_status_map[student] == status
+        ]
+
+        real_student_preferred_courses = [
+            [
+                item.values[0] + "-" + item.values[3]
+                for item in student.student.preferred_courses
+            ]
+            for student in student_per_status
+        ]
+
+        real_courses = [
+            course for sublist in real_student_preferred_courses for course in sublist
+        ]
+
+        status_all_courses = sorted(set(real_courses))
+        real_course_counts = {
+            course: real_courses.count(course) for course in status_all_courses
+        }
+        real_student_count = len(real_student_preferred_courses)
+        real_percentages = [
+            real_course_counts[course] / real_student_count * 100
+            for course in status_all_courses
+        ]
+        real_student_counts = [len(pref) for pref in real_student_preferred_courses]
+
+        students_total_courses = [
+            student.student.total_courses for student in student_per_status
+        ]
+
+        np.savez(
+            f"experiments/preferences/preferences_real_{status}",
+            status_all_courses=status_all_courses,
+            real_percentages=real_percentages,
+            real_student_counts=real_student_counts,
+            students_total_courses=students_total_courses,
+        )
+
+    student_type_map = {student: "real" for student in students}
+
+    n_responses_per_status = np.zeros(6)
+    for student in students:
+        student_status = int(student_status_map[student])
+        n_responses_per_status[student_status - 1] += 1
+
+    NUM_RAND_SAMP = {
+        i + 1: NUM_STUDENTS_PER_STATUS[i + 1] - int(n_responses_per_status[i])
+        for i in range(6)
+    }
+
     RNG = np.random.default_rng(seed)
     status_mbeta_map = {}
     status_surveys_map = {}
@@ -279,7 +281,7 @@ for seed in range(10):
 
     print("run YS")
     start = time.time()
-    X_YS, _, _ = general_yankee_swap_E(students, schedule)
+    X_YS, time_steps, agents_involved = general_yankee_swap_E(students, schedule)
     time_YS = time.time() - start
 
     np.savez(
@@ -287,6 +289,12 @@ for seed in range(10):
         leximin_RR=leximin(X_RR, students, schedule),
         leximin_SD=leximin(X_SD, students, schedule),
         leximin_YS=leximin(X_YS, students, schedule),
+    )
+
+    np.savez(
+        f"agents_involved_{seed}.npz",
+        time_steps=time_steps,
+        agents_involved=agents_involved,
     )
 
     print("Finished allocation algorithms. Now computing metrics")

@@ -102,21 +102,23 @@ for student in all_students:
     student_status = int(student_status_map[student])
     n_responses_per_status[student_status - 1] += 1
 
-rates = [n_responses_per_status[i]/NUM_STUDENTS_PER_STATUS[i+1] for i in range(6)]
+rates = [n_responses_per_status[i] / NUM_STUDENTS_PER_STATUS[i + 1] for i in range(6)]
 rate = min(rates)
 
-n_per_status= [round(NUM_STUDENTS_PER_STATUS[i+1]*min(rates)) for i in range(6)]
+n_per_status = [round(NUM_STUDENTS_PER_STATUS[i + 1] * min(rates)) for i in range(6)]
 
 for sche in schedule:
-    sche.capacity=round(sche.capacity * rate)
+    sche.capacity = round(sche.capacity * rate)
 
-for seed in range(0,1):
-    random.seed(seed) 
-    reduced_students=[]
-    for status in range(1,7):
-        students_status= [student for student in all_students if student_status_map[student]==status]
-        selected_students = random.sample(students_status, n_per_status[status-1])
-        reduced_students =  [*reduced_students,*selected_students]
+for seed in range(10, 100):
+    random.seed(seed)
+    reduced_students = []
+    for status in range(1, 7):
+        students_status = [
+            student for student in all_students if student_status_map[student] == status
+        ]
+        selected_students = random.sample(students_status, n_per_status[status - 1])
+        reduced_students = [*reduced_students, *selected_students]
 
     students = reduced_students
     NUM_STUDENTS = len(students)
@@ -149,20 +151,20 @@ for seed in range(0,1):
     time_YS = time.time() - start
 
     np.savez(
-        f"leximin_reduced_{seed}.npz",
+        f"experiments/leximin_reduced/leximin_reduced_{seed}.npz",
         leximin_RR=leximin(X_RR, students, schedule),
         leximin_SD=leximin(X_SD, students, schedule),
         leximin_YS=leximin(X_YS, students, schedule),
         leximin_ILP=leximin(X_ILP, students, schedule),
     )
-    exit()
+
     print("Finished allocation algorithms. Now computing metrics")
 
     csv_file_path = "experiments/reduced_experiment_results.csv"
 
-    runtimes = [time_SD, time_RR, time_ILP,time_YS]
-    Xs = [X_SD, X_RR, X_ILP,X_YS]
-    algs = ["SD", "RR","ILP", "YS"]
+    runtimes = [time_SD, time_RR, time_ILP, time_YS]
+    Xs = [X_SD, X_RR, X_ILP, X_YS]
+    algs = ["SD", "RR", "ILP", "YS"]
 
     def add_experiment_result(
         NUM_STUDENTS,
