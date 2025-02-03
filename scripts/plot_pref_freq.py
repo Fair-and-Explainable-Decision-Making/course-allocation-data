@@ -16,18 +16,19 @@ status_color_map = {
 
 status_list = {
     1: "Freshmen",
-    2: "Sophmore",
+    2: "Sophomore",
     3: "Junior",
     4: "Senior",
     5: "MS",
-    6: "MS/PhD",
+    6: "PhD",
 }
 
 
 all_courses = []
 for status in range(1, 7):
-    data_real = np.load(f"./experiments/preferences_real_{status}.npz")
+    data_real = np.load(f"./experiments/preferences/preferences_real_{status}.npz")
     courses = data_real["status_all_courses"]
+    print(f"{status_list[status]}: {len(courses)}")
     all_courses = [*all_courses, *courses]
 
 all_courses = sorted(list(set(all_courses)))
@@ -44,12 +45,12 @@ all_courses.insert(66, element)
 
 course_dict = {course: i for i, course in enumerate(all_courses)}
 
-fig, axs = plt.subplots(nrows=6, figsize=(20, 8), sharex=True)
+fig, axs = plt.subplots(nrows=6, figsize=(12, 4.5), sharex=True)
 
 seeds = [*range(28), *range(30, 35), *range(40, 45)]
 for status_inv, ax in enumerate(axs, start=1):
     status = 7 - status_inv
-    data_real = np.load(f"./experiments/preferences_real_{status}.npz")
+    data_real = np.load(f"./experiments/preferences/preferences_real_{status}.npz")
     courses = data_real["status_all_courses"]
     real_percentages = data_real["real_percentages"]
 
@@ -63,7 +64,7 @@ for status_inv, ax in enumerate(axs, start=1):
 
     synthetic_percentages_per_seed = []
     for seed in seeds:
-        data_synth = np.load(f"./experiments/preferences_synth_{seed}_{status}.npz")
+        data_synth = np.load(f"./experiments/preferences/preferences_synth_{seed}_{status}.npz")
         synth_courses = data_synth["status_all_courses"]
         synth_percentages = data_synth["synth_percentages"]
 
@@ -104,7 +105,8 @@ for status_inv, ax in enumerate(axs, start=1):
     ax.fill_between(x, synth_max, synth_min, color=status_color_map[status], alpha=0.3)
     if status > 1:
         ax.tick_params(axis="x", which="both", bottom=False, labelbottom=False)
-    ax.set_yticks([20, 40])
+    ax.set_yticks([40, 80])
+    ax.set_ylim([0,80])
     ax.set_xlim(x[0] - 1, len(all_courses))
 
 
@@ -114,38 +116,8 @@ legend_elements = [
         [0],
         marker="o",
         color="w",
-        label=status_list[6],
-        markerfacecolor=status_color_map[6],
-        alpha=0.7,
-        markersize=10,
-    ),
-    Line2D(
-        [0],
-        [0],
-        marker="o",
-        color="w",
-        label=status_list[5],
-        markerfacecolor=status_color_map[5],
-        alpha=0.7,
-        markersize=10,
-    ),
-    Line2D(
-        [0],
-        [0],
-        marker="o",
-        color="w",
-        label=status_list[4],
-        markerfacecolor=status_color_map[4],
-        alpha=0.7,
-        markersize=10,
-    ),
-    Line2D(
-        [0],
-        [0],
-        marker="o",
-        color="w",
-        label=status_list[3],
-        markerfacecolor=status_color_map[3],
+        label=status_list[1],
+        markerfacecolor=status_color_map[1],
         alpha=0.7,
         markersize=10,
     ),
@@ -164,16 +136,80 @@ legend_elements = [
         [0],
         marker="o",
         color="w",
-        label=status_list[1],
-        markerfacecolor=status_color_map[1],
+        label=status_list[3],
+        markerfacecolor=status_color_map[3],
+        alpha=0.7,
+        markersize=10,
+    ),
+    Line2D(
+        [0],
+        [0],
+        marker="o",
+        color="w",
+        label=status_list[4],
+        markerfacecolor=status_color_map[4],
+        alpha=0.7,
+        markersize=10,
+    ),
+    Line2D(
+        [0],
+        [0],
+        marker="o",
+        color="w",
+        label=status_list[5],
+        markerfacecolor=status_color_map[5],
+        alpha=0.7,
+        markersize=10,
+    ),
+    Line2D(
+        [0],
+        [0],
+        marker="o",
+        color="w",
+        label=status_list[6],
+        markerfacecolor=status_color_map[6],
         alpha=0.7,
         markersize=10,
     ),
 ]
 
-axs[0].legend(handles=legend_elements, ncol=2, loc="upper left", fontsize=14)
+axs[0].legend(handles=legend_elements, ncol=3, loc="upper left", fontsize=10.5)
 axs[-1].set_xticks(range(len(all_courses)))
-axs[-1].set_xticklabels(all_courses, rotation=45, ha="right")
+# axs[-1].set_xticklabels(all_courses, rotation=45, ha="right")
+axs[-1].set_xticklabels(all_courses, rotation=90, ha="right")
+axs[-1].set_xticks([])
+ax.annotate('100 Level', xy=(0.062, -0.15), xytext=(0.062, -0.4), xycoords='axes fraction', 
+            fontsize=10, ha='center', va='top',
+            bbox=dict(boxstyle='square', fc='white', color='k'),
+            arrowprops=dict(arrowstyle='-[, widthB=4.3, lengthB=0.8', lw=1.0, color='k'))
+
+ax.annotate('200 Level', xy=(0.191, -0.15), xytext=(0.191, -0.4), xycoords='axes fraction', 
+            fontsize=10, ha='center', va='top',
+            bbox=dict(boxstyle='square', fc='white', color='k'),
+            arrowprops=dict(arrowstyle='-[, widthB=5.55, lengthB=0.8', lw=1.0, color='k'))
+
+
+ax.annotate('300 Level', xy=(0.433, -0.15), xytext=(0.433, -0.4), xycoords='axes fraction', 
+            fontsize=10, ha='center', va='top',
+            bbox=dict(boxstyle='square', fc='white', color='k'),
+            arrowprops=dict(arrowstyle='-[, widthB=13.4, lengthB=0.8', lw=1.0, color='k'))
+
+ax.annotate('400 Level', xy=(0.66, -0.15), xytext=(0.66, -0.4), xycoords='axes fraction', 
+            fontsize=10, ha='center', va='top',
+            bbox=dict(boxstyle='square', fc='white', color='k'),
+            arrowprops=dict(arrowstyle='-[, widthB=4.4, lengthB=0.8', lw=1.0, color='k'))
+
+ax.annotate('500 Level', xy=(0.763, -0.15), xytext=(0.763, -0.4), xycoords='axes fraction', 
+            fontsize=10, ha='center', va='top',
+            bbox=dict(boxstyle='square', fc='white', color='k'),
+            arrowprops=dict(arrowstyle='-[, widthB=3.4, lengthB=0.8', lw=1.0, color='k'))
+
+ax.annotate('600 Level', xy=(0.902, -0.15), xytext=(0.902, -0.4), xycoords='axes fraction', 
+            fontsize=10, ha='center', va='top',
+            bbox=dict(boxstyle='square', fc='white', color='k'),
+            arrowprops=dict(arrowstyle='-[, widthB=7.2, lengthB=0.8', lw=1.0, color='k'))
+
+fig.supylabel('Percentage of Students', fontsize=10.5)
 
 plt.tight_layout()
 plt.subplots_adjust(wspace=0, hspace=0)

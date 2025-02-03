@@ -36,7 +36,7 @@ metric_names = [
 higher = [1, 1, 0, 0, 0, 0, 0]
 desired_column_order = ["SD", "RR", "YS", "ILP"]  # Specify the desired column order
 
-fig, axs = plt.subplots(2, 4, figsize=(13, 7))
+fig, axs = plt.subplots(2, 4, figsize=(12, 5))
 axs = axs.flatten()
 
 for num, metric in enumerate(metrics):
@@ -97,7 +97,7 @@ for num, metric in enumerate(metrics):
 
     for x, val, c in zip(xs, vals, palette):
         # plt.scatter(x, val, alpha=0.4, color=c)
-        axs[plt_num].scatter(x, val, color=c, s=5)
+        axs[plt_num].scatter(x, val, color=c, s=2)
 
     axs[plt_num].set_xticks([])
     axs[plt_num].set_xlabel(metric_names[num])
@@ -105,7 +105,7 @@ for num, metric in enumerate(metrics):
     if higher[num] == 1:
         axs[plt_num].text(
             0.3,
-            0.94,
+            0.92,
             "↑ Higher is better",
             ha="center",
             va="center",
@@ -116,7 +116,7 @@ for num, metric in enumerate(metrics):
     elif num == 6:
         axs[plt_num].text(
             0.3,
-            0.94,
+            0.92,
             "↓ Lower is better",
             ha="center",
             va="center",
@@ -128,7 +128,7 @@ for num, metric in enumerate(metrics):
     else:
         axs[plt_num].text(
             0.715,
-            0.94,
+            0.92,
             "↓ Lower is better",
             ha="center",
             va="center",
@@ -154,9 +154,9 @@ legend_elements = [
 axs[3].legend(
     handles=legend_elements,
     ncol=1,
-    bbox_to_anchor=(-0.05, 0.3),
+    bbox_to_anchor=(-0.05, 0.45),
     loc="upper left",
-    fontsize=12,
+    fontsize=11,
 )
 
 

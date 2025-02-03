@@ -17,7 +17,7 @@ palette = [palette[i] for i in [0, 1, 2, 4]]
 faded_palette = [color + "66" for color in palette]
 
 lex_dict = {}
-leximin_list = range(10)
+leximin_list = range(100)
 for seed in leximin_list:
     data = np.load(f"experiments/leximin_reduced/leximin_reduced_{seed}.npz")
     leximin_SD = data["leximin_SD"]
@@ -65,7 +65,7 @@ summary = summary.sort_values(by="algorithm")
 
 
 # Create bar plot
-plt.figure(figsize=(13, 4))
+plt.figure(figsize=(12, 3.5))
 
 algorithms = summary["algorithm"].unique()
 bar_width = 0.2
@@ -106,16 +106,62 @@ for i, algo in enumerate(summary["algorithm"].unique()):
         c=palette[i],
         capsize=5,
         linewidth=1.5,
-    )
+    )    
+    mean_freq_ordered = algo_data.sort_values(by="size")["mean_frequency"].values
+    # plt.plot([0,1,2,3,4,5,6], mean_freq_ordered, color= palette[i], linewidth = 2.5)
+
+
+def weighted_mean_std(df):
+    mean_size = np.average(df["size"], weights=df["frequency"])
+    variance = np.average((df["size"] - mean_size) ** 2, weights=df["frequency"])
+    std_size = np.sqrt(variance)
+    return pd.Series({"mean_size": mean_size, "std_size": std_size})
+
+result = df.groupby("algorithm").apply(weighted_mean_std).reset_index()
+
+
+
+
+
+rr_stats = result[result["algorithm"] == "SD"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(0.65, 100, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[0], boxstyle='round'))
+
+
+rr_stats = result[result["algorithm"] == "RR"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(1.65, 125, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[1], boxstyle='round'))
+
+rr_stats = result[result["algorithm"] == "YS"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(4.65, 125, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[2], boxstyle='round'))
+
+rr_stats = result[result["algorithm"] == "ILP"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(5.65, 100, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[3], boxstyle='round'))
+
+
+
+
 
 # Labels and legend
 # plt.title("Frequency of Sizes by Algorithm")
 plt.xlabel("Bundle Size")
 plt.ylabel("Mean Frequency")
 plt.tight_layout()
-plt.ylim([0, 210])
+plt.ylim([0, 225])
 
 
 # plt.tight_layout()
 plt.savefig(f"./experiments/figs/reduced_hist.jpg", dpi=300)
 plt.savefig(f"./experiments/figs/reduced_hist.pdf", format="pdf", dpi=300)
+
+

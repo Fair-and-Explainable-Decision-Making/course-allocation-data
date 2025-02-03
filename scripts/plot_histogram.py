@@ -17,7 +17,7 @@ palette = [palette[i] for i in [0, 1, 2]]
 faded_palette = [color + "66" for color in palette]
 
 lex_dict = {}
-leximin_list = [*range(38), *range(40, 48)]
+leximin_list = range(100)
 for seed in leximin_list:
     data = np.load(f"experiments/leximin/leximin_{seed}.npz")
     leximin_SD = data["leximin_SD"]
@@ -46,6 +46,7 @@ summary = (
     .agg(mean_frequency=("frequency", "mean"), std_frequency=("frequency", "std"))
     .reset_index()
 )
+
 # Define the desired order for the algorithm column
 algorithm_order = ["SD", "RR", "YS"]
 
@@ -59,7 +60,7 @@ summary = summary.sort_values(by="algorithm")
 
 
 # Create bar plot
-plt.figure(figsize=(12, 4))
+plt.figure(figsize=(12, 3.5))
 
 algorithms = summary["algorithm"].unique()
 bar_width = 0.25
@@ -97,6 +98,9 @@ for i, algo in enumerate(summary["algorithm"].unique()):
         capsize=5,
         linewidth=1.5,
     )
+    mean_freq_ordered = algo_data.sort_values(by="size")["mean_frequency"].values
+    # plt.plot([0,1,2,3,4,5,6], mean_freq_ordered, color= palette[i], linewidth = 2.5)
+
 
 # Labels and legend
 # plt.title("Frequency of Sizes by Algorithm")
@@ -104,7 +108,40 @@ plt.xlabel("Bundle Size")
 plt.ylabel("Mean Frequency")
 plt.tight_layout()
 
+def weighted_mean_std(df):
+    mean_size = np.average(df["size"], weights=df["frequency"])
+    variance = np.average((df["size"] - mean_size) ** 2, weights=df["frequency"])
+    std_size = np.sqrt(variance)
+    return pd.Series({"mean_size": mean_size, "std_size": std_size})
 
-# plt.tight_layout()
+result = df.groupby("algorithm").apply(weighted_mean_std).reset_index()
+
+
+
+
+
+rr_stats = result[result["algorithm"] == "SD"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(0.65, 400, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[0], boxstyle='round'))
+
+
+rr_stats = result[result["algorithm"] == "RR"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(1.65, 600, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[1], boxstyle='round'))
+
+rr_stats = result[result["algorithm"] == "YS"][["mean_size", "std_size"]].values.flatten()
+mean_rr, std_rr = rr_stats  # Unpack the values
+text = ' μ={:.2f}\n σ={:.2f}'.format(mean_rr, std_rr )
+plt.text(4.65, 600, text, color='k', 
+        bbox=dict(facecolor='none', edgecolor=palette[2], boxstyle='round'))
+
+
+plt.ylim([0,1000])
+
+
 plt.savefig(f"./experiments/figs/hist.jpg", dpi=300)
 plt.savefig(f"./experiments/figs/hist.pdf", format="pdf", dpi=300)
