@@ -67,7 +67,11 @@ def top_preferred(course_map, schedule, course, response, pref_thresh):
             )
 
     preferred_courses = [schedule[j] for j in idxs]
-    return preferred_courses
+
+    response_dict = {
+        schedule[i]: response[i] for i in range(len(schedule)) if response[i] > 1
+    }
+    return preferred_courses, response_dict
 
 
 def synthesize_students(
@@ -171,7 +175,7 @@ class SurveyStudent(BaseAgent):
 
         students = []
         for i in range(responses.shape[0]):
-            preferred_courses = top_preferred(
+            preferred_courses, response_dict = top_preferred(
                 course_map, schedule, course, responses[i], pref_thresh
             )
             total_courses = classes[np.argmax(dist.rvs(random_state=rng)[0])]
@@ -307,7 +311,7 @@ class QSurvey:
         statuses = []
         for _, row in self.df.iterrows():
             response = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
-            preferred = top_preferred(
+            preferred, response_dict = top_preferred(
                 course_map, schedule, course, response, pref_thresh
             )
             total_num_courses = row["3"]
