@@ -48,7 +48,12 @@ def scale_up_responses(responses, relevant_idxs, n):
     return new_responses
 
 
-def top_preferred(course_map, schedule, course, response, pref_thresh):
+def get_preferred_courses(course_map, schedule, response, pref_thresh):    
+    
+    response_dict = {
+        schedule[i]: response[i] for i in range(len(schedule)) if response[i] > 1
+    }
+
     all_courses = list(course_map.values())
     order = np.argsort(response)[::-1]
 
@@ -66,12 +71,10 @@ def top_preferred(course_map, schedule, course, response, pref_thresh):
                 all_courses[index]["course num"] for index in same_value_indices
             )
 
-    preferred_courses = [schedule[j] for j in idxs]
+    top_preferred_courses = [schedule[j] for j in idxs]
 
-    response_dict = {
-        schedule[i]: response[i] for i in range(len(schedule)) if response[i] > 1
-    }
-    return preferred_courses, response_dict
+
+    return response_dict, top_preferred_courses 
 
 
 def synthesize_students(
@@ -175,14 +178,14 @@ class SurveyStudent(BaseAgent):
 
         students = []
         for i in range(responses.shape[0]):
-            preferred_courses, response_dict = top_preferred(
-                course_map, schedule, course, responses[i], pref_thresh
+            response_dict, top_preferred_courses = get_preferred_courses(
+                course_map, schedule, responses[i], pref_thresh
             )
             total_courses = classes[np.argmax(dist.rvs(random_state=rng)[0])]
 
             students.append(
                 SurveyStudent(
-                    preferred_courses,
+                    top_preferred_courses,
                     total_courses,
                     course,
                     section,
@@ -311,8 +314,8 @@ class QSurvey:
         statuses = []
         for _, row in self.df.iterrows():
             response = [row[crs] if row[crs] > 0 else 1 for crs in all_courses]
-            preferred, response_dict = top_preferred(
-                course_map, schedule, course, response, pref_thresh
+            response_dict, top_preferred_courses = get_preferred_courses(
+                course_map, schedule, response, pref_thresh
             )
             total_num_courses = row["3"]
             status = row["1"]
@@ -326,7 +329,7 @@ class QSurvey:
             responses.append([row[crs] for crs in all_courses])
             statuses.append(status)
             student = SurveyStudent(
-                preferred,
+                top_preferred_courses,
                 total_num_courses,
                 course,
                 section,
