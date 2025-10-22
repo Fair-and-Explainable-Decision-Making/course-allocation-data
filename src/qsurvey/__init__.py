@@ -48,8 +48,8 @@ def scale_up_responses(responses, relevant_idxs, n):
     return new_responses
 
 
-def get_preferred_courses(course_map, schedule, response, pref_thresh):    
-    
+def get_preferred_courses(course_map, schedule, response, pref_thresh):
+
     response_dict = {
         schedule[i]: response[i] for i in range(len(schedule)) if response[i] > 1
     }
@@ -73,8 +73,7 @@ def get_preferred_courses(course_map, schedule, response, pref_thresh):
 
     top_preferred_courses = [schedule[j] for j in idxs]
 
-
-    return response_dict, top_preferred_courses 
+    return response_dict, top_preferred_courses
 
 
 def synthesize_students(
