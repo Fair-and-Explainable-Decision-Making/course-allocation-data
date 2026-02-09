@@ -156,7 +156,7 @@ def add_experiment_result(
         new_row.to_csv(csv_file_path, mode="w", header=True, index=False)
 
 
-for seed in range(10):
+for seed in range(10,50):
     random.seed(seed)
     reduced_students = []
     for status in range(1, 7):
