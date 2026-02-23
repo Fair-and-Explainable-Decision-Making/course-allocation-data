@@ -21,9 +21,7 @@ from sklearn.decomposition import PCA
 
 import qsurvey
 
-NUM_RAND_SAMP = 20
-NUM_SUB_KERNELS = 3
-SAMPLE_PER_STUDENT = 10
+
 SPARSE = False
 PLOT = True
 seed = 0
@@ -67,7 +65,7 @@ NUM_STUDENTS_PER_STATUS = {
 survey_file = "../resources/survey_data.csv"
 schedule_file = "../resources/anonymized_courses.xlsx"
 mapping_file = "../resources/survey_column_mapping.csv"
-csv_file_path = "../experiments/reduced_experiment_results.csv"
+csv_file_path = "../experiments/reduced_experiment_results_2nd.csv"
 
 mp = qsurvey.QMapper(mapping_file)
 qd = qsurvey.QSchedule(schedule_file)
@@ -127,7 +125,7 @@ def add_experiment_result(
     USW = sum(current_utilities)
     seats = sum(sum(X)[:NUM_STUDENTS])
     zeros, nash = nash_welfare(X, students, schedule, current_utilities)
-    total_envy, status_envy, downward_envy = EF_violations_reponses(
+    total_envy, status_envy, downward_envy, _ = EF_violations_reponses(
         X, students, schedule, student_status_map, c
     )
 
@@ -156,7 +154,7 @@ def add_experiment_result(
         new_row.to_csv(csv_file_path, mode="w", header=True, index=False)
 
 
-for seed in range(10,50):
+for seed in range(10, 50):
     random.seed(seed)
     reduced_students = []
     for status in range(1, 7):
@@ -228,9 +226,7 @@ for seed in range(10,50):
 
     print("run YS")
     start = time.time()
-    X_YS_1, _, _ = general_yankee_swap_E(
-        students, schedule, valuations=c
-    )
+    X_YS_1, _, _ = general_yankee_swap_E(students, schedule, valuations=c)
     runtime = time.time() - start
     add_experiment_result(
         NUM_STUDENTS,
@@ -244,5 +240,3 @@ for seed in range(10,50):
         c,
         csv_file_path,
     )
-
-
