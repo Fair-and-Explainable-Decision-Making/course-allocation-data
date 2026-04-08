@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import time
 import os
+import random
 
 from fair.stats.survey import Corpus, SingleTopicSurvey
 from fair.agent import LegacyStudent
@@ -14,6 +15,14 @@ from fair.allocation import (
 from fair.metrics import nash_welfare, first_preference_count
 from fair.envy import EF_violations_reponses
 import qsurvey
+
+# --- FORCE REPRODUCIBILITY ---
+GLOBAL_SEED = 0
+
+os.environ["PYTHONHASHSEED"] = str(GLOBAL_SEED)
+random.seed(GLOBAL_SEED)
+np.random.seed(GLOBAL_SEED)
+# -----------------------------
 
 
 def add_experiment_result(
@@ -107,7 +116,7 @@ NUM_STUDENTS_PER_STATUS = {
 survey_file = "../resources/survey_data.csv"
 schedule_file = "../resources/anonymized_courses.xlsx"
 mapping_file = "../resources/survey_column_mapping.csv"
-csv_file_path = "../experiments/full_experiment_results.csv"
+csv_file_path = "../experiments/full_experiment.csv"
 
 mp = qsurvey.QMapper(mapping_file)
 qd = qsurvey.QSchedule(schedule_file)
@@ -223,8 +232,10 @@ for seed in range(10):
         for student in synth_students:
             student_status_map[student] = status
 
-    students.sort(key=lambda x: student_status_map[x])
-    students.reverse()
+    students.sort(
+        key=lambda x: (student_status_map[x], str(x))  # deterministic tie-breaker
+    )
+    students = list(reversed(students))
 
     c = np.vstack([student_resp_map[student] for student in students]) - 1
 
